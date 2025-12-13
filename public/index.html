@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云端数据管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">云端数据管理</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="home-link">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="data-link">数据管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-none" href="#" id="my-data-link">我的数据</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div id="auth-buttons">
+                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">登录</button>
+                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#registerModal">注册</button>
+                    </div>
+                    <div id="user-info" class="d-none align-items-center">
+                        <span class="text-white me-3" id="username-display"></span>
+                        <button class="btn btn-outline-light" id="logout-btn">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="container mt-4">
+        <!-- 首页内容 -->
+        <div id="home-content" class="content-section">
+            <div class="row">
+                <div class="col-md-8 mx-auto text-center">
+                    <h1 class="mb-4">欢迎使用云端数据管理系统</h1>
+                    <p class="lead mb-4">这是一个基于Node.js和MySQL的云端数据管理平台，提供安全的数据存储和管理功能。</p>
+                    
+                    <div class="row mt-5">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">安全认证</h5>
+                                    <p class="card-text">基于JWT的用户认证系统，确保数据安全。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">云端存储</h5>
+                                    <p class="card-text">数据存储在云端MySQL数据库，随时随地访问。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">RESTful API</h5>
+                                    <p class="card-text">完整的RESTful API，支持CRUD操作。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据管理内容 -->
+        <div id="data-content" class="content-section d-none">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>数据列表</h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDataModal" id="add-data-btn">
+                        添加数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="search-input" placeholder="搜索数据...">
+                        <button class="btn btn-outline-secondary" id="search-btn">搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>描述</th>
+                            <th>创建者</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 无数据提示 -->
+            <div id="no-data-message" class="text-center py-5 d-none">
+                <h3>暂无数据</h3>
+                <p class="text-muted">点击"添加数据"按钮创建您的第一条数据</p>
+            </div>
+        </div>
+
+        <!-- 我的数据内容 -->
+        <div id="my-data-content" class="content-section d-none">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>我的数据</h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDataModal">
+                        添加数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 我的数据表格 -->
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>描述</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-data-table-body">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="login-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="login-password" required>
+                        </div>
+                        <div id="login-error" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">登录</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户注册</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="register-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-email" class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="register-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="register-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-confirm-password" class="form-label">确认密码</label>
+                            <input type="password" class="form-control" id="register-confirm-password" required>
+                        </div>
+                        <div id="register-error" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">注册</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑数据模态框 -->
+    <div class="modal fade" id="addDataModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="data-modal-title">添加数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="data-form">
+                        <input type="hidden" id="data-id">
+                        <div class="mb-3">
+                            <label for="data-title" class="form-label">标题</label>
+                            <input type="text" class="form-control" id="data-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="data-description" class="form-label">描述</label>
+                            <textarea class="form-control" id="data-description" rows="3"></textarea>
+                        </div>
+                        <div id="data-error" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">保存</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
