@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>智选商城 - AI虚拟商品交易平台</title>
+	<style>
+		*{margin:0;padding:0;box-sizing:border-box}
+		body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f5;color:#333;line-height:1.6}
+		a{text-decoration:none;color:inherit}
+		ul{list-style:none}
+
+		/* 顶部栏 */
+		.topbar{background:#fff;border-bottom:1px solid #eee;font-size:12px;color:#999}
+		.topbar-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;padding:6px 24px}
+		.topbar a{color:#999;margin-left:16px;transition:color .2s}
+		.topbar a:hover{color:#e60012}
+
+		/* 导航 */
+		.navbar{background:#fff;position:sticky;top:0;z-index:100;border-bottom:1px solid #eee}
+		.navbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;padding:16px 24px;gap:40px}
+		.logo{font-size:24px;font-weight:700;color:#e60012}
+		.logo small{font-size:12px;color:#999;font-weight:400;margin-left:4px}
+		.search-box{flex:1;display:flex;align-items:center;border:2px solid #e60012;border-radius:4px;overflow:hidden;max-width:500px}
+		.search-box input{flex:1;border:none;outline:none;padding:10px 14px;font-size:14px}
+		.search-btn{background:#e60012;color:#fff;border:none;padding:10px 24px;font-size:14px;cursor:pointer;transition:background .2s}
+		.search-btn:hover{background:#c40010}
+		.nav-cart{position:relative;color:#666;cursor:pointer;width:28px;height:28px}
+		.nav-cart svg{width:28px;height:28px}
+		.nav-cart span{position:absolute;top:-4px;right:-8px;background:#e60012;color:#fff;font-size:10px;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+		.nav-links{display:flex;gap:24px;margin-left:16px}
+		.nav-links a{font-size:14px;color:#666;transition:color .2s}
+		.nav-links a:hover{color:#e60012}
+
+		/* 主内容区 */
+		.main{max-width:1200px;margin:16px auto;padding:0 24px;display:flex;gap:16px}
+		.sidebar{width:220px;flex-shrink:0}
+		.sidebar-menu{background:#fff;border-radius:8px;overflow:hidden;border:1px solid #eee}
+		.sidebar-title{background:#e60012;color:#fff;padding:12px 16px;font-size:14px;font-weight:600}
+		.sidebar-menu li{border-bottom:1px solid #f5f5f5;transition:background .2s}
+		.sidebar-menu li:last-child{border-bottom:none}
+		.sidebar-menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:13px;color:#333;cursor:pointer}
+		.sidebar-menu a:hover{background:#fff5f5;color:#e60012}
+		.sidebar-menu a span{color:#ccc;font-size:12px}
+
+		/* 轮播 */
+		.content{flex:1}
+		.banner{background:#fff;border-radius:8px;overflow:hidden;border:1px solid #eee;position:relative;height:340px;display:flex;align-items:center;padding:0 48px;cursor:pointer}
+		.banner-text h2{font-size:32px;color:#333;margin-bottom:8px}
+		.banner-text h2 span{color:#e60012}
+		.banner-text p{color:#666;margin-bottom:20px;font-size:14px}
+		.banner-btn{background:#e60012;color:#fff;padding:10px 28px;border-radius:4px;font-size:14px;display:inline-block;transition:background .2s}
+		.banner-btn:hover{background:#c40010}
+		.banner-img{position:absolute;right:24px;top:50%;transform:translateY(-50%);width:440px;height:300px;object-fit:cover;border-radius:8px}
+
+		/* 快捷入口 */
+		.quick-links{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+		.quick-card{background:#fff;border-radius:8px;padding:18px;text-align:center;border:1px solid #eee;cursor:pointer;transition:all .2s}
+		.quick-card:hover{border-color:#e60012;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+		.quick-card img{width:56px;height:56px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+		.quick-card h4{font-size:14px;color:#333;margin-bottom:2px}
+		.quick-card p{font-size:12px;color:#999}
+
+		/* 商品区 */
+		.products{max-width:1200px;margin:24px auto 0;padding:0 24px}
+		.section-header{background:#fff;padding:12px 20px;border-bottom:2px solid #e60012;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;margin-top:24px;border:1px solid #eee;border-bottom:2px solid #e60012}
+		.section-header h2{font-size:16px;font-weight:600;color:#333}
+		.section-header a{font-size:13px;color:#999}
+		.section-header a:hover{color:#e60012}
+		.product-grid{background:#fff;padding:20px;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;border-radius:0 0 8px 8px;border:1px solid #eee;border-top:none}
+		.product-card{background:#fff;border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;transition:all .2s;cursor:pointer}
+		.product-card:hover{border-color:#ffccc7;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+		.product-img{height:160px;background:#fafafa;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+		.product-img img{width:100%;height:100%;object-fit:cover}
+		.product-tag{position:absolute;top:8px;left:8px;background:#e60012;color:#fff;font-size:10px;padding:2px 6px;border-radius:2px}
+		.product-info{padding:12px}
+		.product-info h3{font-size:13px;color:#333;height:38px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.5}
+		.product-price{margin-top:8px;display:flex;align-items:baseline;gap:4px}
+		.product-price .cur{font-size:12px;color:#e60012}
+		.product-price .num{font-size:18px;color:#e60012;font-weight:700}
+		.product-price .old{font-size:11px;color:#ccc;text-decoration:line-through}
+		.product-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+		.sold{font-size:11px;color:#999}
+		.cart-add{background:#fff0f0;color:#e60012;border:1px solid #ffccc7;border-radius:4px;padding:4px 10px;font-size:12px;cursor:pointer;transition:all .2s}
+		.cart-add:hover{background:#e60012;color:#fff;border-color:#e60012}
+
+		/* 底部保障 */
+		.guarantee{max-width:1200px;margin:32px auto 0;padding:0 24px}
+		.guarantee-inner{background:#fff;border-radius:8px;padding:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;border:1px solid #eee}
+		.g-item{display:flex;align-items:center;gap:12px;justify-content:center}
+		.g-item svg{width:32px;height:32px;color:#e60012}
+		.g-item div h4{font-size:14px;color:#333}
+		.g-item div p{font-size:12px;color:#999}
+
+		/* 页脚 */
+		.footer{margin-top:32px;background:#2b2b2b;color:#aaa;padding:40px 24px 0}
+		.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
+		.footer h4{color:#fff;font-size:15px;margin-bottom:16px}
+		.footer ul li{margin-bottom:8px}
+		.footer ul li a{font-size:13px;color:#aaa;transition:color .2s}
+		.footer ul li a:hover{color:#fff}
+		.footer-contact .tel{font-size:20px;color:#e60012;font-weight:700;margin-bottom:4px}
+		.footer-contact p{font-size:12px;color:#999}
+		.footer-bottom{max-width:1200px;margin:32px auto 0;padding:20px 0;border-top:1px solid #444;text-align:center;font-size:12px;color:#666}
+
+		/* 弹窗 */
+		.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:center}
+		.modal-overlay.active{display:flex}
+		.modal{background:#fff;border-radius:8px;padding:32px;max-width:400px;width:90%;position:relative}
+		.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#999}
+		.modal h3{font-size:18px;margin-bottom:8px}
+		.modal p{font-size:13px;color:#666;margin-bottom:16px}
+		.modal .price{font-size:24px;color:#e60012;font-weight:700;margin-bottom:16px}
+		.modal .price span{font-size:14px}
+		.modal-btn{background:#e60012;color:#fff;border:none;border-radius:4px;padding:10px 36px;font-size:15px;cursor:pointer;width:100%;transition:background .2s}
+		.modal-btn:hover{background:#c40010}
+		/* Toast */
+		.toast{position:fixed;top:80px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;z-index:1000;opacity:0;transform:translateY(-10px);transition:all .3s}
+		.toast.show{opacity:1;transform:translateY(0)}
+
+		/* 返回顶部 */
+		.backtop{position:fixed;right:24px;bottom:40px;width:40px;height:40px;background:#fff;border:1px solid #eee;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#999;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .2s;opacity:0;pointer-events:none}
+		.backtop.show{opacity:1;pointer-events:auto}
+		.backtop:hover{color:#e60012;border-color:#e60012}
+	</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<div class="topbar">
+	<div class="topbar-inner">
+		<div>欢迎来到智选商城，让AI为你赋能</div>
+		<div id="topbarLinks">
+			<a href="login.html">登录</a>
+			<a href="login.html">注册</a>
+			<a href="orders.html">我的订单</a>
+			<a href="javascript:void(0)">帮助中心</a>
+		</div>
+	</div>
+</div>
+
+<!-- 导航 -->
+<nav class="navbar">
+	<div class="navbar-inner">
+		<div class="logo">智选商城<small>AI虚拟商品</small></div>
+		<div class="search-box">
+			<input type="text" placeholder="搜索AI账号、提示词、工作流..." id="searchInput"/>
+			<button class="search-btn">搜索</button>
+		</div>
+		<div class="nav-cart" onclick="showCart()">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+			<span id="cartCount">0</span>
+		</div>
+		<div class="nav-links">
+			<a href="#home">首页</a>
+			<a href="javascript:void(0)" onclick="filterProducts('account')">AI账号</a>
+			<a href="javascript:void(0)" onclick="filterProducts('prompt')">提示词</a>
+			<a href="javascript:void(0)" onclick="filterProducts('workflow')">工作流</a>
+			<a href="javascript:void(0)" onclick="filterProducts('tool')">AI工具</a>
+		</div>
+	</div>
+</nav>
+
+<!-- 主内容 -->
+<div class="main" id="home">
+	<!-- 侧边栏 -->
+	<aside class="sidebar">
+		<div class="sidebar-menu">
+			<div class="sidebar-title">全部商品分类</div>
+			<ul>
+				<li><a onclick="filterProducts('account')">AI 账号<span>&gt;</span></a></li>
+				<li><a onclick="filterProducts('prompt')">AI 提示词<span>&gt;</span></a></li>
+				<li><a onclick="filterProducts('workflow')">AI 工作流<span>&gt;</span></a></li>
+				<li><a onclick="filterProducts('tool')">AI 工具<span>&gt;</span></a></li>
+				<li><a onclick="filterProducts('all')">全部商品<span>&gt;</span></a></li>
+			</ul>
+		</div>
+	</aside>
+
+	<!-- 内容区 -->
+	<div class="content">
+		<!-- 横幅 -->
+		<div class="banner">
+			<div class="banner-text">
+				<h2>AI虚拟商品<span>一站式采购</span></h2>
+				<p>账号 · 提示词 · 工作流 · 工具，即买即用，自动发货</p>
+				<a href="javascript:void(0)" class="banner-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">立即选购</a>
+			</div>
+			<img src="img/zhuye.png" alt="banner" class="banner-img"/>
+		</div>
+
+		<!-- 快捷入口 -->
+		<div class="quick-links">
+			<div class="quick-card" onclick="filterProducts('account')">
+				<img src="img/chatgpt.jpg.jpg" alt="AI账号"/>
+				<h4>AI 账号</h4>
+				<p>ChatGPT / Claude</p>
+			</div>
+			<div class="quick-card" onclick="filterProducts('prompt')">
+				<img src="img/xiezuo.jpg.jpeg" alt="提示词"/>
+				<h4>AI 提示词</h4>
+				<p>写作 / 绘画</p>
+			</div>
+			<div class="quick-card" onclick="filterProducts('workflow')">
+				<img src="img/coze.jpg.png" alt="工作流"/>
+				<h4>AI 工作流</h4>
+				<p>自动化方案</p>
+			</div>
+			<div class="quick-card" onclick="filterProducts('tool')">
+				<img src="img/codex,jpg.jpeg" alt="AI工具"/>
+				<h4>AI 工具</h4>
+				<p>插件 / 模板</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 商品列表 -->
+<section class="products" id="products">
+	<div class="section-header">
+		<h2 id="sectionTitle">热门推荐</h2>
+		<a href="javascript:void(0)" onclick="filterProducts('all')">更多 &gt;</a>
+	</div>
+	<div class="product-grid" id="productGrid"></div>
+</section>
+
+<!-- 保障 -->
+<div class="guarantee">
+	<div class="guarantee-inner">
+		<div class="g-item">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+			<div><h4>正品保障</h4><p>严选供应商</p></div>
+		</div>
+		<div class="g-item">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+			<div><h4>自动发货</h4><p>购买秒到账</p></div>
+		</div>
+		<div class="g-item">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+			<div><h4>专属客服</h4><p>7x24小时</p></div>
+		</div>
+		<div class="g-item">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+			<div><h4>无忧售后</h4><p>问题包解决</p></div>
+		</div>
+	</div>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+	<div class="footer-inner">
+		<div>
+			<h4>购物指南</h4>
+			<ul>
+				<li><a href="javascript:void(0)">购物流程</a></li>
+				<li><a href="javascript:void(0)">支付方式</a></li>
+				<li><a href="javascript:void(0)">常见问题</a></li>
+			</ul>
+		</div>
+		<div>
+			<h4>售后保障</h4>
+			<ul>
+				<li><a href="javascript:void(0)">售后政策</a></li>
+				<li><a href="javascript:void(0)">退款说明</a></li>
+				<li><a href="javascript:void(0)">联系客服</a></li>
+			</ul>
+		</div>
+		<div>
+			<h4>关于我们</h4>
+			<ul>
+				<li><a href="javascript:void(0)">平台介绍</a></li>
+				<li><a href="javascript:void(0)">用户协议</a></li>
+				<li><a href="javascript:void(0)">隐私政策</a></li>
+			</ul>
+		</div>
+		<div class="footer-contact">
+			<h4>联系我们</h4>
+			<div class="tel">400-888-9999</div>
+			<p>工作日 9:00-21:00</p>
+			<p>客服QQ: 123456789</p>
+		</div>
+	</div>
+	<div class="footer-bottom">&copy; 2026 智选商城 AIStore. 保留所有权利。</div>
+</footer>
+
+<!-- 弹窗 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+	<div class="modal">
+		<button class="modal-close" onclick="closeModal()">&times;</button>
+		<h3 id="modalTitle"></h3>
+		<p id="modalDesc"></p>
+		<div class="price"><span>&yen;</span><span id="modalPrice"></span></div>
+		<button class="modal-btn" onclick="addToCart()">立即购买</button>
+	</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 返回顶部 -->
+<div class="backtop" id="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+	<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+</div>
+
+<script>
+	const products = [
+		{ id:1, name:'ChatGPT Plus 共享账号', desc:'GPT-4o 畅享，每月额度充足', price:49.9, oldPrice:89, tag:'account', tagLabel:'AI账号', img:'img/chatgpt.jpg.jpg', sold:2300 },
+		{ id:2, name:'Claude Pro 独享账号', desc:'Anthropic Claude 旗舰模型', price:99, oldPrice:159, tag:'account', tagLabel:'AI账号', img:'img/Claude.jpg.jpg', sold:890 },
+		{ id:3, name:'Midjourney 标准会员', desc:'AI绘画利器，15小时快速出图', price:68, oldPrice:128, tag:'account', tagLabel:'AI账号', img:'img/mid.jpg.jpg', sold:1560 },
+		{ id:4, name:'AI 写作提示词合集', desc:'200+ 精选写作提示词', price:19.9, oldPrice:39, tag:'prompt', tagLabel:'提示词', img:'img/xiezuo.jpg.jpeg', sold:3200 },
+		{ id:5, name:'AI 绘画大师提示词', desc:'Midjourney/SD 出图提示词', price:29.9, oldPrice:59, tag:'prompt', tagLabel:'提示词', img:'img/2.jpg.jpg', sold:2100 },
+		{ id:6, name:'AI 编程辅助提示词', desc:'代码生成调试重构模板', price:15.9, oldPrice:35, tag:'prompt', tagLabel:'提示词', img:'img/codex,jpg.jpeg', sold:1800 },
+		{ id:7, name:'Coze 智能客服工作流', desc:'开箱即用自动客服Agent', price:39.9, oldPrice:79, tag:'workflow', tagLabel:'工作流', img:'img/coze.jpg.png', sold:670 },
+		{ id:8, name:'Dify 内容创作工作流', desc:'文章/摘要/翻译自动化', price:35, oldPrice:69, tag:'workflow', tagLabel:'工作流', img:'img/dify.jpg.png', sold:540 },
+		{ id:9, name:'n8n 数据采集工作流', desc:'网页抓取+AI分析处理', price:45, oldPrice:89, tag:'workflow', tagLabel:'工作流', img:'img/n8n.jpg.png', sold:430 },
+		{ id:10, name:'Cursor Pro 激活码', desc:'AI编程神器效率翻倍', price:59, oldPrice:99, tag:'tool', tagLabel:'AI工具', img:'img/cursor.jpg', sold:1200 },
+	];
+
+	let cart = [];
+	let currentProduct = null;
+
+	function renderProducts(list) {
+		const grid = document.getElementById('productGrid');
+		grid.innerHTML = list.map(p => `
+			<div class="product-card" onclick="location.href='detail.html?id=${p.id}'">
+				<div class="product-img">
+					<img src="${p.img}" alt="${p.name}"/>
+					<span class="product-tag">${p.tagLabel}</span>
+				</div>
+				<div class="product-info">
+					<h3>${p.name}</h3>
+					<div class="product-price">
+						<span class="cur">&yen;</span>
+						<span class="num">${p.price}</span>
+						<span class="old">&yen;${p.oldPrice}</span>
+					</div>
+					<div class="product-bottom">
+						<span class="sold">已售 ${p.sold}+</span>
+						<button class="cart-add" onclick="event.stopPropagation();quickAdd(${p.id})">加入购物车</button>
+					</div>
+				</div>
+			</div>
+		`).join('');
+	}
+
+	function filterProducts(tag) {
+		const titleMap = {all:'热门推荐',account:'AI 账号',prompt:'AI 提示词',workflow:'AI 工作流',tool:'AI 工具'};
+		document.getElementById('sectionTitle').textContent = titleMap[tag] || titleMap.all;
+		renderProducts(tag === 'all' ? products : products.filter(p => p.tag === tag));
+	}
+
+	function openModal(id) {
+		currentProduct = products.find(p => p.id === id);
+		document.getElementById('modalTitle').textContent = currentProduct.name;
+		document.getElementById('modalDesc').textContent = currentProduct.desc;
+		document.getElementById('modalPrice').textContent = currentProduct.price;
+		document.getElementById('modalOverlay').classList.add('active');
+	}
+	function closeModal(e) { if(!e||e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('active'); }
+	function addToCart() { if(currentProduct){cart.push(currentProduct);updateCart();closeModal();toast('"'+currentProduct.name+'" 已加入购物车');} }
+	function quickAdd(id) { const p=products.find(p=>p.id===id);cart.push(p);updateCart();toast('"'+p.name+'" 已加入购物车'); }
+	function updateCart() { document.getElementById('cartCount').textContent=cart.length; }
+	function showCart() { if(cart.length===0){toast('购物车空空如也');}else{const total=cart.reduce((s,p)=>s+p.price,0);toast('购物车 '+cart.length+' 件，合计 &yen;'+total.toFixed(1));} }
+	function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+	document.getElementById('searchInput').addEventListener('input', function() {
+		const kw=this.value.trim().toLowerCase();
+		if(!kw){renderProducts(products);return;}
+		renderProducts(products.filter(p=>p.name.toLowerCase().includes(kw)||p.desc.toLowerCase().includes(kw)));
+	});
+
+	window.addEventListener('scroll',()=>{document.getElementById('backtop').classList.toggle('show',window.scrollY>400);});
+
+	renderProducts(products);
+
+	// 登录状态检测
+	(function(){
+		const user = JSON.parse(localStorage.getItem('currentUser'));
+		const box = document.getElementById('topbarLinks');
+		if (user && user.username) {
+			box.innerHTML = `<span style="color:#999;margin-right:12px;font-size:12px">${user.username}</span><a href="orders.html">我的订单</a><a href="javascript:void(0)" onclick="logout()">退出</a>`;
+		}
+	})();
+	function logout() { localStorage.removeItem('currentUser'); location.reload(); }
+</script>
+</body>
+</html>

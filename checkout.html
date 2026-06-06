@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>结算下单 - 智选商城</title>
+	<style>
+		*{margin:0;padding:0;box-sizing:border-box}
+		body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f5;color:#333;line-height:1.6}
+
+		/* 导航 */
+		.navbar{background:#fff;border-bottom:1px solid #eee}
+		.navbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;padding:16px 24px;justify-content:space-between}
+		.logo{font-size:24px;font-weight:700;color:#e60012;text-decoration:none}
+		.logo small{font-size:12px;color:#999;font-weight:400;margin-left:4px}
+		.checkout-steps{display:flex;gap:8px;align-items:center;font-size:13px;color:#999}
+		.checkout-steps .active{color:#e60012;font-weight:600}
+		.checkout-steps .sep{color:#ddd}
+
+		/* 主体 */
+		.main{max-width:1200px;margin:32px auto;padding:0 24px;display:grid;grid-template-columns:1fr 380px;gap:24px}
+		.card{background:#fff;border-radius:12px;padding:28px;border:1px solid #eee;margin-bottom:16px}
+		.card-title{font-size:16px;font-weight:700;color:#333;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+		.card-title .num{display:inline-flex;width:22px;height:22px;background:#e60012;color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+
+		/* 表单 */
+		.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+		.form-row.single{grid-template-columns:1fr}
+		.form-group{display:flex;flex-direction:column;gap:6px}
+		.form-group label{font-size:13px;color:#666;font-weight:500}
+		.form-group label .req{color:#e60012}
+		.form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;outline:none;transition:border-color .2s;font-family:inherit}
+		.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#e60012}
+		.form-group textarea{resize:vertical;min-height:60px}
+
+		/* 支付方式 */
+		.pay-methods{display:flex;gap:12px}
+		.pay-option{flex:1;border:2px solid #eee;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+		.pay-option:hover{border-color:#ffccc7}
+		.pay-option.selected{border-color:#e60012;background:#fff5f5}
+		.pay-option .pay-icon{font-size:28px;margin-bottom:8px}
+		.pay-option .pay-name{font-size:14px;color:#333;font-weight:500}
+		.pay-option .pay-desc{font-size:11px;color:#999;margin-top:4px}
+		.pay-check{display:none;color:#e60012;font-size:14px;margin-top:4px}
+		.pay-option.selected .pay-check{display:block}
+
+		/* 订单商品 */
+		.order-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;align-items:center}
+		.order-item:last-child{border-bottom:none}
+		.order-item-img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#fafafa;flex-shrink:0}
+		.order-item-info{flex:1;min-width:0}
+		.order-item-info h4{font-size:13px;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+		.order-item-info .price{font-size:14px;color:#e60012;font-weight:600;margin-top:2px}
+		.order-item-qty{font-size:13px;color:#999;flex-shrink:0}
+		.order-item-subtotal{font-size:15px;color:#e60012;font-weight:600;flex-shrink:0;text-align:right;min-width:70px}
+
+		/* 价格明细 */
+		.price-line{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:#666}
+		.price-line.total{border-top:1px solid #eee;margin-top:8px;padding-top:12px;font-size:16px;font-weight:700;color:#e60012}
+		.price-line.total span:last-child{font-size:24px}
+
+		/* 按钮 */
+		.btn-submit{width:100%;padding:14px;background:#e60012;color:#fff;border:none;border-radius:8px;font-size:17px;cursor:pointer;transition:background .2s;font-weight:600;margin-top:16px}
+		.btn-submit:hover{background:#c40010}
+		.btn-back{color:#999;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:12px}
+		.btn-back:hover{color:#e60012}
+
+		/* 空购物车 */
+		.empty-state{text-align:center;padding:60px 20px}
+		.empty-state svg{width:64px;height:64px;stroke:#ddd;margin-bottom:16px}
+		.empty-state h3{font-size:18px;color:#999;margin-bottom:8px}
+		.empty-state p{font-size:14px;color:#ccc;margin-bottom:20px}
+		.empty-state a{color:#e60012;font-size:15px;font-weight:500;text-decoration:underline}
+
+		/* Toast */
+		.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);background:#333;color:#fff;padding:12px 24px;border-radius:6px;font-size:14px;z-index:1000;opacity:0;transition:all .3s;pointer-events:none}
+		.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+		.toast.success{background:#52c41a}
+
+		/* 登录提示 */
+		.login-banner{background:#fff5f5;border:1px solid #ffccc7;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px}
+		.login-banner p{font-size:14px;color:#666;margin-bottom:12px}
+		.login-banner a{display:inline-block;background:#e60012;color:#fff;padding:8px 24px;border-radius:4px;text-decoration:none;font-size:14px}
+		.login-banner a:hover{background:#c40010}
+
+		.hidden{display:none}
+
+		@media(max-width:768px){.main{grid-template-columns:1fr}}
+	</style>
+</head>
+<body>
+
+<nav class="navbar">
+	<div class="navbar-inner">
+		<a href="index.html" class="logo">智选商城<small>AI虚拟商品</small></a>
+		<div class="checkout-steps">
+			<span>购物车</span><span class="sep">→</span>
+			<span class="active">确认订单</span><span class="sep">→</span>
+			<span>支付</span><span class="sep">→</span>
+			<span>完成</span>
+		</div>
+	</div>
+</nav>
+
+<div class="main">
+	<!-- 左侧表单 -->
+	<div>
+		<!-- 未登录提示 -->
+		<div class="login-banner hidden" id="loginBanner">
+			<p>请先登录，以便我们为您保存订单信息</p>
+			<a href="login.html?redirect=checkout.html">立即登录</a>
+		</div>
+
+		<!-- 收货信息 -->
+		<div class="card">
+			<div class="card-title"><span class="num">1</span> 收货信息</div>
+			<div class="form-row">
+				<div class="form-group">
+					<label><span class="req">*</span> 联系人</label>
+					<input type="text" id="contactName" placeholder="请输入姓名" />
+				</div>
+				<div class="form-group">
+					<label><span class="req">*</span> 手机号码</label>
+					<input type="tel" id="contactPhone" placeholder="请输入手机号" />
+				</div>
+			</div>
+			<div class="form-row single">
+				<div class="form-group">
+					<label><span class="req">*</span> 电子邮箱</label>
+					<input type="email" id="contactEmail" placeholder="商品将发送到此邮箱" />
+				</div>
+			</div>
+			<div class="form-row single">
+				<div class="form-group">
+					<label>备注留言</label>
+					<textarea id="orderRemark" placeholder="如有特殊要求请在此留言（选填）"></textarea>
+				</div>
+			</div>
+		</div>
+
+		<!-- 支付方式 -->
+		<div class="card">
+			<div class="card-title"><span class="num">2</span> 支付方式</div>
+			<div class="pay-methods">
+				<div class="pay-option selected" data-pay="wechat" onclick="selectPay(this)">
+					<div class="pay-icon">💬</div>
+					<div class="pay-name">微信支付</div>
+					<div class="pay-desc">推荐使用</div>
+					<div class="pay-check">✓ 已选择</div>
+				</div>
+				<div class="pay-option" data-pay="alipay" onclick="selectPay(this)">
+					<div class="pay-icon">🔵</div>
+					<div class="pay-name">支付宝</div>
+					<div class="pay-desc">安全快捷</div>
+					<div class="pay-check">✓ 已选择</div>
+				</div>
+				<div class="pay-option" data-pay="card" onclick="selectPay(this)">
+					<div class="pay-icon">💳</div>
+					<div class="pay-name">银行卡</div>
+					<div class="pay-desc">支持主流银行</div>
+					<div class="pay-check">✓ 已选择</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 右侧订单汇总 -->
+	<div>
+		<div class="card" id="summaryCard">
+			<div class="card-title" style="margin-bottom:16px">订单明细</div>
+			<div id="orderItems">
+				<div class="empty-state">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+					<h3>购物车是空的</h3>
+					<p>请先去选购商品</p>
+					<a href="index.html">去逛逛</a>
+				</div>
+			</div>
+			<div class="price-line"><span>商品小计</span><span id="subtotal">&yen;0.00</span></div>
+			<div class="price-line"><span>优惠减免</span><span style="color:#52c41a">-&yen;0.00</span></div>
+			<div class="price-line total"><span>应付总额</span><span id="grandTotal">&yen;0.00</span></div>
+			<button class="btn-submit" id="submitBtn" onclick="submitOrder()" disabled>确认下单</button>
+			<a href="index.html" class="btn-back">&#8592; 返回继续购物</a>
+		</div>
+	</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+	let selectedPay = 'wechat';
+
+	// 检查登录状态
+	const user = JSON.parse(localStorage.getItem('currentUser'));
+	if (!user) {
+		document.getElementById('loginBanner').classList.remove('hidden');
+	} else {
+		// 自动填充
+		document.getElementById('contactName').value = user.username || '';
+		document.getElementById('contactEmail').value = user.email || '';
+	}
+
+	// 支付方式选择
+	function selectPay(el) {
+		document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+		el.classList.add('selected');
+		selectedPay = el.dataset.pay;
+	}
+
+	// 加载购物车
+	const cart = JSON.parse(localStorage.getItem('shopCart') || '[]');
+	if (cart.length === 0) {
+		document.getElementById('submitBtn').disabled = true;
+	} else {
+		document.getElementById('submitBtn').disabled = false;
+		renderOrderItems();
+	}
+
+	function renderOrderItems() {
+		const container = document.getElementById('orderItems');
+		let subtotal = 0;
+		container.innerHTML = cart.map(c => {
+			const itemTotal = c.price * c.qty;
+			subtotal += itemTotal;
+			return `<div class="order-item">
+				<img src="${c.img}" alt="${c.name}" class="order-item-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect fill=%22%23fafafa%22 width=%2256%22 height=%2256%22/></svg>'"/>
+				<div class="order-item-info">
+					<h4 title="${c.name}">${c.name}</h4>
+					<div class="price">&yen;${c.price}</div>
+				</div>
+				<div class="order-item-qty">×${c.qty}</div>
+				<div class="order-item-subtotal">&yen;${itemTotal.toFixed(1)}</div>
+			</div>`;
+		}).join('');
+		document.getElementById('subtotal').textContent = '\u00a5' + subtotal.toFixed(1);
+		document.getElementById('grandTotal').textContent = '\u00a5' + subtotal.toFixed(1);
+	}
+
+	function toast(msg, type) {
+		const t = document.getElementById('toast');
+		t.textContent = msg;
+		t.className = 'toast';
+		if (type) t.classList.add(type);
+		t.classList.add('show');
+		clearTimeout(t._timer);
+		t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+	}
+
+	function submitOrder() {
+		if (!user) { toast('请先登录', 'error'); return; }
+
+		const name = document.getElementById('contactName').value.trim();
+		const phone = document.getElementById('contactPhone').value.trim();
+		const email = document.getElementById('contactEmail').value.trim();
+
+		if (!name) { toast('请输入联系人姓名'); return; }
+		if (!phone) { toast('请输入手机号码'); return; }
+		if (!/^1\d{10}$/.test(phone)) { toast('请输入正确的手机号'); return; }
+		if (!email) { toast('请输入邮箱地址'); return; }
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('请输入正确的邮箱'); return; }
+		if (cart.length === 0) { toast('购物车为空'); return; }
+
+		const payMap = { wechat: '微信支付', alipay: '支付宝', card: '银行卡' };
+		const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+		const order = {
+			id: 'ZS' + Date.now().toString(36).toUpperCase(),
+			date: new Date().toLocaleString('zh-CN'),
+			items: cart.map(c => ({...c})),
+			total: total,
+			payMethod: payMap[selectedPay],
+			contact: { name, phone, email },
+			remark: document.getElementById('orderRemark').value.trim(),
+			status: 'paid',
+			statusLabel: '已支付',
+			username: user.username
+		};
+
+		// 保存订单
+		const orders = JSON.parse(localStorage.getItem('shopOrders') || '[]');
+		orders.unshift(order);
+		localStorage.setItem('shopOrders', JSON.stringify(orders));
+
+		// 清空购物车
+		localStorage.setItem('shopCart', '[]');
+
+		toast('下单成功！正在跳转...', 'success');
+		setTimeout(() => {
+			location.href = 'orders.html';
+		}, 1000);
+	}
+</script>
+</body>
+</html>
