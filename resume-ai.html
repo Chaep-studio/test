@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 简历生成平台 · JD × 经历 → 多版本简历</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --primary:#6366f1;
+    --primary-2:#8b5cf6;
+    --primary-3:#ec4899;
+    --bg-1:#eef2ff;
+    --bg-2:#faf5ff;
+    --bg-3:#fdf2f8;
+    --ink:#0f172a;
+    --ink-2:#475569;
+    --ink-3:#94a3b8;
+    --line:#e2e8f0;
+    --line-2:#f1f5f9;
+    --card:rgba(255,255,255,0.78);
+    --card-solid:#ffffff;
+    --radius:18px;
+    --radius-sm:10px;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.04),0 2px 8px rgba(15,23,42,.04);
+    --shadow:0 4px 12px rgba(99,102,241,.08),0 12px 32px rgba(99,102,241,.08);
+    --shadow-lg:0 20px 50px rgba(99,102,241,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1100px 700px at 10% -10%, #c7d2fe 0%, transparent 60%),
+      radial-gradient(900px 600px at 110% 0%, #fbcfe8 0%, transparent 55%),
+      radial-gradient(900px 600px at 50% 110%, #bae6fd 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 60%, var(--bg-3) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    padding:28px 20px 60px;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(99,102,241,.08) 0, transparent 2px),
+      radial-gradient(circle at 70% 60%, rgba(236,72,153,.08) 0, transparent 2px),
+      radial-gradient(circle at 40% 80%, rgba(139,92,246,.08) 0, transparent 2px);
+    background-size: 60px 60px, 80px 80px, 70px 70px;
+    pointer-events:none;
+    z-index:0;
+  }
+  .container{max-width:1400px;margin:0 auto;position:relative;z-index:1}
+  .header{
+    text-align:center;
+    color:var(--ink);
+    margin-bottom:28px;
+    padding:24px 20px 8px;
+    position:relative;
+  }
+  .header .brand{
+    display:inline-flex;align-items:center;gap:10px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2) 50%,var(--primary-3));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-size:34px;font-weight:800;letter-spacing:-.5px;
+  }
+  .header .brand .logo{
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2) 50%,var(--primary-3));
+    color:#fff;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 22px rgba(139,92,246,.35);
+    -webkit-text-fill-color:#fff;
+  }
+  .header p{font-size:14.5px;color:var(--ink-2);margin-top:8px;letter-spacing:.2px}
+  .ai-status{
+    position:absolute;top:24px;right:0;
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.7);
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    padding:7px 14px;border-radius:999px;font-size:12.5px;color:var(--ink-2);
+    cursor:pointer;border:1px solid rgba(255,255,255,.9);
+    box-shadow:var(--shadow-sm);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .ai-status:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .ai-status .dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 0 rgba(245,158,11,.6);animation:pulse 1.8s infinite}
+  .ai-status.on .dot{background:#10b981;box-shadow:0 0 0 0 rgba(16,185,129,.6)}
+  .ai-status.off .dot{background:#ef4444;animation:none}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(16,185,129,.55)}
+    70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}
+    100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}
+  }
+  .main{display:grid;grid-template-columns:1fr 1.3fr;gap:22px}
+  .panel{
+    background:var(--card);
+    backdrop-filter:saturate(180%) blur(18px);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);
+    border:1px solid rgba(255,255,255,.7);
+    border-radius:var(--radius);
+    padding:24px;
+    box-shadow:var(--shadow);
+  }
+  .panel-title{
+    font-size:16px;font-weight:700;margin-bottom:16px;
+    display:flex;align-items:center;gap:10px;color:var(--ink);
+    letter-spacing:.2px;
+  }
+  .panel-title .icon{
+    width:28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-size:13px;font-weight:700;
+    box-shadow:0 6px 16px rgba(99,102,241,.35);
+  }
+  .form-group{margin-bottom:16px}
+  label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px;color:#334155;letter-spacing:.2px}
+  textarea,input,select{
+    width:100%;padding:11px 13px;
+    border:1.5px solid var(--line);
+    border-radius:12px;font-size:14px;
+    font-family:inherit;
+    background:rgba(255,255,255,.85);
+    color:var(--ink);
+    transition:border-color .2s, box-shadow .2s, background .2s, transform .05s;
+  }
+  textarea{resize:vertical;min-height:92px;line-height:1.6}
+  textarea:hover,input:hover,select:hover{border-color:#cbd5e1}
+  textarea:focus,input:focus,select:focus{
+    outline:none;border-color:var(--primary);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(99,102,241,.12);
+  }
+  select{
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;background-position:right 12px center;background-size:14px;
+    padding-right:36px;
+  }
+  .tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tag{
+    background:rgba(238,242,255,.9);color:#4f46e5;
+    padding:4px 11px;border-radius:999px;font-size:12px;
+    cursor:pointer;user-select:none;
+    border:1px solid rgba(99,102,241,.18);
+    transition:all .15s ease;
+  }
+  .tag:hover{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-color:transparent;transform:translateY(-1px)}
+  .btn{
+    padding:10px 18px;border:none;border-radius:12px;
+    font-size:14px;font-weight:600;cursor:pointer;
+    font-family:inherit;display:inline-flex;align-items:center;gap:7px;
+    transition:transform .15s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+    letter-spacing:.2px;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary-2) 60%,var(--primary-3));
+    color:#fff;
+    box-shadow:0 8px 20px rgba(99,102,241,.35);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(139,92,246,.45)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn-secondary{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}
+  .btn-secondary:hover{background:#e2e8f0}
+  .btn-success{
+    background:linear-gradient(135deg,#10b981,#059669);color:#fff;
+    box-shadow:0 8px 20px rgba(16,185,129,.3);
+  }
+  .btn-success:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(16,185,129,.4)}
+  .btn-ghost{background:transparent;color:var(--primary);border:1.5px solid rgba(99,102,241,.4)}
+  .btn-ghost:hover{background:rgba(99,102,241,.08);border-color:var(--primary)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .right-tabs{
+    display:flex;gap:4px;margin-bottom:14px;
+    border-bottom:1.5px solid var(--line-2);
+    flex-wrap:wrap;align-items:center;padding-bottom:0;
+  }
+  .tab{
+    padding:9px 14px;cursor:pointer;font-size:13px;color:var(--ink-2);
+    border:none;background:transparent;margin-bottom:-1.5px;
+    transition:all .18s ease;border-radius:8px 8px 0 0;
+    position:relative;font-weight:500;
+  }
+  .tab:hover{color:var(--primary);background:rgba(99,102,241,.05)}
+  .tab.active{
+    color:var(--primary);font-weight:700;
+    background:linear-gradient(180deg,rgba(99,102,241,.08),transparent);
+  }
+  .tab.active::after{
+    content:"";position:absolute;left:8px;right:8px;bottom:-1.5px;height:2.5px;
+    background:linear-gradient(90deg,var(--primary),var(--primary-3));
+    border-radius:3px;
+  }
+  .tab .close-x{margin-left:6px;font-size:11px;opacity:.5;padding:0 4px;border-radius:4px}
+  .tab .close-x:hover{opacity:1;color:#ef4444;background:rgba(239,68,68,.1)}
+  .add-tab{
+    padding:6px 10px;cursor:pointer;color:var(--ink-3);
+    font-size:18px;line-height:1;border-radius:8px;margin-left:4px;
+    transition:all .15s;
+  }
+  .add-tab:hover{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+  .resume-preview{
+    background:#fff;
+    border:1px solid var(--line-2);
+    border-radius:14px;
+    min-height:600px;padding:36px 40px;
+    line-height:1.75;font-size:13.5px;
+    max-height:75vh;overflow-y:auto;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .resume-preview::-webkit-scrollbar{width:8px}
+  .resume-preview::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  .resume-preview::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+  .resume-preview h1{
+    font-size:26px;margin-bottom:4px;color:#0f172a;
+    text-align:center;letter-spacing:.5px;font-weight:800;
+  }
+  .resume-preview .sub-info{
+    text-align:center;color:#64748b;font-size:13px;
+    margin-bottom:18px;padding-bottom:14px;
+    border-bottom:2px solid var(--primary);
+  }
+  .resume-preview h2{
+    font-size:15px;color:var(--primary);
+    margin:20px 0 10px;padding-left:12px;
+    border-left:3px solid var(--primary);
+    font-weight:700;letter-spacing:.3px;
+  }
+  .resume-preview .item{margin-bottom:12px}
+  .resume-preview .item-head{
+    display:flex;justify-content:space-between;
+    font-weight:600;color:#1e293b;
+  }
+  .resume-preview .item-sub{color:#64748b;font-size:12.5px;margin-bottom:4px}
+  .resume-preview ul{padding-left:20px;color:#334155}
+  .resume-preview li{margin-bottom:4px;line-height:1.7}
+  .resume-preview .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .resume-preview .skill{
+    background:rgba(99,102,241,.08);color:#4f46e5;
+    padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;
+  }
+  .empty-state{
+    text-align:center;color:#94a3b8;
+    padding:90px 20px;font-size:14px;
+  }
+  .empty-state .big{font-size:54px;margin-bottom:14px;opacity:.55;filter:saturate(1.1)}
+  .empty-state .hint-line{margin-top:6px;font-size:12.5px;color:#a3a3a3}
+  .status-bar{
+    margin-top:12px;padding:10px 14px;
+    background:linear-gradient(135deg,#eff6ff,#dbeafe);
+    border:1px solid #bfdbfe;
+    border-radius:10px;font-size:12.5px;color:#1d4ed8;
+    display:none;
+  }
+  .status-bar.show{display:block;animation:fadeIn .3s ease}
+  .status-bar.error{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:#fecaca;color:#b91c1c}
+  .match-info{
+    margin-top:10px;padding:12px 14px;
+    background:linear-gradient(135deg,#fef9c3,#fde68a);
+    border:1px solid #fde68a;border-radius:10px;
+    font-size:12.5px;color:#854d0e;
+    display:none;
+  }
+  .match-info.show{display:block;animation:fadeIn .3s ease}
+  .jd-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:8px;background:rgba(255,255,255,.6);border-radius:8px;min-height:30px}
+  .jd-chip{
+    background:#fff;border:1px solid #d1d5db;
+    padding:3px 10px;border-radius:999px;font-size:12px;color:#374151;
+  }
+  .jd-chip.must{background:#fee2e2;border-color:#fca5a5;color:#991b1b;font-weight:600}
+  .jd-chip.nice{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+  .toast{
+    position:fixed;top:30px;right:30px;
+    background:linear-gradient(135deg,#10b981,#059669);color:#fff;
+    padding:12px 22px;border-radius:12px;
+    box-shadow:0 12px 32px rgba(16,185,129,.4);
+    transform:translateX(420px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    z-index:1000;font-size:14px;font-weight:500;
+    max-width:380px;display:flex;align-items:center;gap:8px;
+  }
+  .toast.show{transform:translateX(0)}
+  .toast.error{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 12px 32px rgba(239,68,68,.4)}
+  .toast.info{background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 12px 32px rgba(59,130,246,.4)}
+  .hint{font-size:12px;color:#94a3b8;margin-top:4px}
+  .spinner{
+    display:inline-block;width:12px;height:12px;
+    border:2px solid rgba(255,255,255,.45);
+    border-top-color:#fff;border-radius:50%;
+    animation:spin .6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+  .typing-cursor{
+    display:inline-block;width:2px;height:14px;background:var(--primary);
+    margin-left:2px;animation:blink 1s infinite;vertical-align:text-bottom;
+  }
+  /* AI 配置弹窗 */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(15,23,42,.55);
+    z-index:2000;display:none;align-items:center;justify-content:center;
+    padding:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  }
+  .modal-overlay.show{display:flex;animation:fadeIn .25s ease}
+  .modal{
+    background:#fff;border-radius:20px;
+    width:100%;max-width:580px;max-height:90vh;overflow-y:auto;
+    padding:30px;
+    box-shadow:0 25px 60px rgba(15,23,42,.3);
+    position:relative;
+    border:1px solid rgba(255,255,255,.8);
+  }
+  .modal::-webkit-scrollbar{width:8px}
+  .modal::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  .modal h2{
+    font-size:20px;margin-bottom:6px;color:#0f172a;
+    font-weight:700;letter-spacing:-.2px;
+  }
+  .modal .sub-title{color:#64748b;font-size:13px;margin-bottom:20px;line-height:1.5}
+  .modal .row{display:flex;gap:10px;margin-bottom:12px}
+  .modal .row > *{flex:1}
+  .modal .close-btn{
+    position:absolute;top:18px;right:18px;
+    background:#f1f5f9;border:none;font-size:18px;
+    cursor:pointer;color:#64748b;
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .modal .close-btn:hover{background:#e2e8f0;color:#0f172a;transform:rotate(90deg)}
+  .modal .preset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .preset-card{
+    padding:12px 14px;
+    border:1.5px solid var(--line);
+    border-radius:12px;cursor:pointer;
+    transition:all .2s ease;font-size:13px;position:relative;
+    background:#fff;
+  }
+  .preset-card:hover{border-color:var(--primary);background:rgba(99,102,241,.04);transform:translateY(-2px)}
+  .preset-card.active{
+    border-color:var(--primary);
+    background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(236,72,153,.06));
+    box-shadow:0 6px 18px rgba(99,102,241,.15);
+  }
+  .preset-card .name{font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
+  .preset-card .name .badge{
+    font-size:10px;background:linear-gradient(135deg,#10b981,#059669);
+    color:#fff;padding:2px 7px;border-radius:999px;font-weight:600;
+  }
+  .preset-card .desc{color:#64748b;font-size:11.5px;margin-top:4px;line-height:1.4}
+  .modal .api-key-wrap{position:relative}
+  .modal .api-key-wrap input{padding-right:90px}
+  .modal .api-key-wrap .toggle-vis{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;color:var(--primary);
+    cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;
+    font-weight:500;
+  }
+  .modal .api-key-wrap .toggle-vis:hover{background:rgba(99,102,241,.08)}
+  .modal .test-result{
+    margin-top:10px;padding:10px 12px;
+    border-radius:10px;font-size:12.5px;display:none;
+    border:1px solid transparent;
+  }
+  .modal .test-result.show{display:block;animation:fadeIn .25s ease}
+  .modal .test-result.ok{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+  .modal .test-result.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .help-link{color:var(--primary);text-decoration:none;font-size:12px;font-weight:500}
+  .help-link:hover{text-decoration:underline}
+  .modal .divider{border:none;border-top:1.5px dashed var(--line);margin:18px 0}
+  .modal .warning{
+    padding:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1px solid #fde68a;border-left:3px solid #f59e0b;
+    border-radius:8px;font-size:12px;color:#92400e;
+    margin-bottom:14px;line-height:1.6;
+  }
+  .modal .warning strong{color:#78350f}
+  @media(max-width:980px){
+    .main{grid-template-columns:1fr}
+    .modal{padding:22px}
+    .preset-grid{grid-template-columns:1fr}
+    .header .brand{font-size:28px}
+    .ai-status{position:static;margin:14px auto 0;display:inline-flex}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="brand"><span class="logo">🤖</span><span>AI 简历生成平台</span></div>
+    <p>输入 JD + 模糊经历 · 真实 AI 生成多版本简历 · 一键导出 PDF</p>
+    <div class="ai-status off" id="aiStatus" onclick="openAIModal()" title="点击配置 AI">
+      <span class="dot"></span>
+      <span id="aiStatusText">本地模式（未配置 AI）</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 左侧：输入区 -->
+    <div class="panel">
+      <div class="panel-title"><span class="icon">①</span>输入信息</div>
+
+      <div class="form-group">
+        <label>目标岗位 / 职位方向（可填多个，用逗号分隔）</label>
+        <input type="text" id="positions" placeholder="如：产品经理, 数据分析师, 运营经理">
+        <div class="hint">多个岗位将自动生成对应版本的简历</div>
+        <div class="tags-row">
+          <span class="tag" onclick="addPos('产品经理')">产品经理</span>
+          <span class="tag" onclick="addPos('数据分析')">数据分析</span>
+          <span class="tag" onclick="addPos('运营')">运营</span>
+          <span class="tag" onclick="addPos('市场营销')">市场营销</span>
+          <span class="tag" onclick="addPos('前端开发')">前端开发</span>
+          <span class="tag" onclick="addPos('项目管理')">项目管理</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>目标岗位 JD（可粘贴多段）</label>
+        <textarea id="jd" placeholder="粘贴目标岗位的 JD 描述，多段用空行分隔&#10;&#10;例如：&#10;产品经理 JD：&#10;1. 负责XX产品规划&#10;2. 数据驱动决策&#10;3. 跨部门协作"></textarea>
+        <div class="hint">系统会自动提取关键技能点和岗位要求</div>
+      </div>
+
+      <div class="form-group">
+        <label>个人经历（模糊描述即可）</label>
+        <textarea id="experience" placeholder="随便写，越真实越好：&#10;&#10;2020-2023 某某公司 担任XX&#10;- 做过一些数据相关的事&#10;- 带过几个人&#10;- 搞过一些活动&#10;&#10;2023-至今 自由职业&#10;- 折腾过短视频&#10;- 写过一些文章" style="min-height:140px"></textarea>
+        <div class="hint">写得越具体，AI 生成的简历越精准</div>
+      </div>
+
+      <div class="form-group">
+        <label>个人信息</label>
+        <input type="text" id="name" placeholder="姓名（如：张三）" style="margin-bottom:8px">
+        <input type="text" id="contact" placeholder="联系方式（电话/邮箱，可选）">
+      </div>
+
+      <div class="form-group">
+        <label>简历风格</label>
+        <select id="style">
+          <option value="professional">专业稳重型（适合传统行业、大厂）</option>
+          <option value="modern">现代简洁型（适合互联网、创业公司）</option>
+          <option value="creative">创意活泼型（适合设计、市场、内容）</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="generateBtn" onclick="generate()">
+          ✨ 生成多版本简历
+        </button>
+        <button class="btn btn-secondary" onclick="fillDemo()">📝 填入示例</button>
+        <button class="btn btn-ghost" onclick="openAIModal()">⚙️ AI 配置</button>
+        <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空</button>
+      </div>
+
+      <div class="status-bar" id="statusBar"></div>
+    </div>
+
+    <!-- 右侧：预览区 -->
+    <div class="panel">
+      <div class="panel-title">
+        <span class="icon">②</span>简历预览
+        <span style="margin-left:auto;font-size:12px;color:#888;font-weight:normal" id="tabInfo"></span>
+      </div>
+
+      <div class="right-tabs" id="tabsContainer">
+        <span style="color:#94a3b8;padding:9px 14px;font-size:12.5px;background:rgba(241,245,249,.5);border-radius:8px">💡 填写左侧信息后点击「生成」，这里会出现多个岗位的简历版本</span>
+      </div>
+
+      <div class="resume-preview" id="resumePreview">
+        <div class="empty-state">
+          <div class="big" style="animation:float 3s ease-in-out infinite">📄</div>
+          <div style="font-size:15px;color:#64748b;font-weight:500">填写左侧信息后点击生成</div>
+          <div class="hint-line">AI 将为你定制多个岗位方向的简历 ✨</div>
+        </div>
+      </div>
+
+      <div class="match-info" id="matchInfo"></div>
+
+      <div class="actions" id="exportActions" style="display:none">
+        <button class="btn btn-success" onclick="exportPDF()">📥 导出当前 PDF</button>
+        <button class="btn btn-primary" onclick="exportAllPDF()">📦 导出全部 PDF</button>
+        <button class="btn btn-secondary" onclick="copyText()">📋 复制文本</button>
+        <button class="btn btn-secondary" onclick="downloadHTML()">💾 下载 HTML</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- AI 配置弹窗 -->
+<div class="modal-overlay" id="aiModal" onclick="if(event.target===this)closeAIModal()">
+  <div class="modal" style="position:relative">
+    <button class="close-btn" onclick="closeAIModal()">✕</button>
+    <h2>⚙️ AI 模型配置</h2>
+    <div class="sub-title">支持 OpenAI 兼容协议（OpenAI / DeepSeek / Moonshot / 通义千问 / 智谱 / Ollama 等）</div>
+
+    <div class="warning">
+      <strong>🔒 隐私说明</strong>：API Key 仅保存在你的浏览器 localStorage，<strong>不会上传到任何服务器</strong>，请求直接从你的浏览器发往 AI 服务商。
+    </div>
+
+    <label style="margin-bottom:8px">快速选择服务商</label>
+    <div class="preset-grid" id="presetGrid">
+      <div class="preset-card" data-preset="openai" onclick="applyPreset('openai')">
+        <div class="name">OpenAI <span class="badge">官方</span></div>
+        <div class="desc">GPT-4o / GPT-4o-mini / o1</div>
+      </div>
+      <div class="preset-card" data-preset="deepseek" onclick="applyPreset('deepseek')">
+        <div class="name">DeepSeek <span class="badge">便宜</span></div>
+        <div class="desc">deepseek-chat · 国内直连</div>
+      </div>
+      <div class="preset-card" data-preset="moonshot" onclick="applyPreset('moonshot')">
+        <div class="name">Moonshot (Kimi)</div>
+        <div class="desc">moonshot-v1-128k · 长文本</div>
+      </div>
+      <div class="preset-card" data-preset="dashscope" onclick="applyPreset('dashscope')">
+        <div class="name">通义千问 (DashScope)</div>
+        <div class="desc">qwen-plus / qwen-turbo</div>
+      </div>
+      <div class="preset-card" data-preset="zhipu" onclick="applyPreset('zhipu')">
+        <div class="name">智谱 AI</div>
+        <div class="desc">glm-4 / glm-4-flash</div>
+      </div>
+      <div class="preset-card" data-preset="ollama" onclick="applyPreset('ollama')">
+        <div class="name">Ollama (本地)</div>
+        <div class="desc">llama3 / qwen 本地部署</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="form-group">
+      <label>Base URL <span class="hint" style="display:inline">(API 根地址)</span></label>
+      <input type="text" id="cfgBaseUrl" placeholder="https://api.openai.com/v1">
+    </div>
+
+    <div class="form-group">
+      <label>API Key</label>
+      <div class="api-key-wrap">
+        <input type="password" id="cfgApiKey" placeholder="sk-...">
+        <button type="button" class="toggle-vis" onclick="toggleKeyVis()">👁️ 显示</button>
+      </div>
+      <div class="hint">
+        <a class="help-link" href="https://platform.openai.com/api-keys" target="_blank">OpenAI Key</a> ·
+        <a class="help-link" href="https://platform.deepseek.com/" target="_blank">DeepSeek</a> ·
+        <a class="help-link" href="https://platform.moonshot.cn/console/api-keys" target="_blank">Moonshot</a> ·
+        <a class="help-link" href="https://dashscope.console.aliyun.com/" target="_blank">DashScope</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>模型名</label>
+        <input type="text" id="cfgModel" placeholder="gpt-4o-mini">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Temperature <span class="hint" style="display:inline">(0-2)</span></label>
+        <input type="number" id="cfgTemperature" min="0" max="2" step="0.1" value="0.7">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>超时时间 (秒)</label>
+      <input type="number" id="cfgTimeout" min="10" max="300" step="10" value="60">
+    </div>
+
+    <div class="test-result" id="testResult"></div>
+
+    <div class="actions" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="testConnection()">🔌 测试连接</button>
+      <button class="btn btn-success" onclick="saveAIConfig()">💾 保存配置</button>
+      <button class="btn btn-secondary" onclick="clearAIConfig()">🗑️ 清除配置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============== 状态 ============== */
+let resumes = [];
+let currentIdx = 0;
+let isGenerating = false;
+let AI_CONFIG = null;  // {baseUrl, apiKey, model, temperature, timeout}
+
+/* ============== 工具 ============== */
+function $(id){return document.getElementById(id)}
+function showToast(msg, type='success'){
+  const t = $('toast');
+  const icon = type==='error' ? '⚠️' : type==='info' ? 'ℹ️' : '✓';
+  t.innerHTML = `<span style="font-size:16px">${icon}</span><span>${msg}</span>`;
+  t.className = 'toast show' + (type==='error'?' error':type==='info'?' info':'');
+  setTimeout(()=>t.className='toast'+(type==='error'?' error':type==='info'?' info':''), 3500);
+}
+function setStatus(msg, isError=false){
+  const s = $('statusBar');
+  s.textContent = msg;
+  s.className = 'status-bar show' + (isError?' error':'');
+}
+function addPos(p){
+  const el = $('positions');
+  const v = el.value.trim();
+  el.value = v ? (v.includes(p) ? v : v + ', ' + p) : p;
+  el.focus();
+}
+function clearAll(){
+  if(!confirm('确认清空所有输入？')) return;
+  ['positions','jd','experience','name','contact'].forEach(id=>$(id).value='');
+  resumes = []; currentIdx = 0;
+  renderTabs(); renderPreview();
+  $('matchInfo').classList.remove('show');
+  $('exportActions').style.display='none';
+  $('statusBar').classList.remove('show');
+  showToast('已清空');
+}
+function fillDemo(){
+  $('positions').value = '产品经理, 数据分析师';
+  $('jd').value = `产品经理 JD：
+1. 负责 C 端产品的需求挖掘、产品规划与迭代
+2. 基于数据驱动决策，提升核心业务指标
+3. 跨部门协作（研发、设计、运营），推动项目落地
+4. 深入理解用户行为，输出竞品分析报告
+
+数据分析师 JD：
+1. 搭建业务数据指标体系，输出周报月报
+2. 使用 SQL/Python 进行数据清洗与建模
+3. 通过 A/B 测试验证策略效果
+4. 用数据讲故事，为业务决策提供支持`;
+  $('experience').value = `2019-2022 某互联网公司 运营专员
+- 负责用户增长相关的事情，搞过裂变活动，拉来不少人
+- 每周做数据周报，给老板汇报
+- 跟产品和研发撕过需求，落地了几个小功能
+- 带过一个 2 人小团队
+
+2022-2024 某创业公司 产品助理
+- 参与了一个 SaaS 产品的从 0 到 1
+- 写过 PRD，画过原型
+- 做过一些用户调研，访谈过几十个客户
+- 数据不太好看的时候救过几次火
+
+个人技能：
+- SQL 还行，Python 入门
+- Excel 用得比较溜
+- 写过一些 PPT 和文档
+- 沟通能力还可以`;
+  $('name').value = '张三';
+  $('contact').value = '13800138000 · zhangsan@example.com';
+  $('style').value = 'modern';
+  showToast('已填入示例数据');
+}
+
+/* ============== AI 配置管理 ============== */
+const PRESETS = {
+  openai:    {baseUrl:'https://api.openai.com/v1',         model:'gpt-4o-mini',  name:'OpenAI'},
+  deepseek:  {baseUrl:'https://api.deepseek.com/v1',       model:'deepseek-chat',name:'DeepSeek'},
+  moonshot:  {baseUrl:'https://api.moonshot.cn/v1',        model:'moonshot-v1-8k', name:'Moonshot'},
+  dashscope: {baseUrl:'https://dashscope.aliyuncs.com/compatible-mode/v1', model:'qwen-plus', name:'DashScope'},
+  zhipu:     {baseUrl:'https://open.bigmodel.cn/api/paas/v4', model:'glm-4-flash', name:'Zhipu'},
+  ollama:    {baseUrl:'http://localhost:11434/v1',        model:'llama3',       name:'Ollama'}
+};
+
+function openAIModal(){
+  loadAIConfigToUI();
+  $('aiModal').classList.add('show');
+}
+function closeAIModal(){
+  $('aiModal').classList.remove('show');
+  $('testResult').classList.remove('show');
+}
+function applyPreset(key){
+  const p = PRESETS[key];
+  if(!p) return;
+  $('cfgBaseUrl').value = p.baseUrl;
+  $('cfgModel').value = p.model;
+  document.querySelectorAll('.preset-card').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.preset-card[data-preset="${key}"]`)?.classList.add('active');
+}
+function toggleKeyVis(){
+  const i = $('cfgApiKey');
+  const b = event.target;
+  if(i.type==='password'){i.type='text'; b.textContent='🙈 隐藏';}
+  else{i.type='password'; b.textContent='👁️ 显示';}
+}
+function loadAIConfigToUI(){
+  const cfg = AI_CONFIG || JSON.parse(localStorage.getItem('aiResumeConfig')||'null') || {};
+  $('cfgBaseUrl').value = cfg.baseUrl || '';
+  $('cfgApiKey').value = cfg.apiKey || '';
+  $('cfgModel').value = cfg.model || '';
+  $('cfgTemperature').value = cfg.temperature ?? 0.7;
+  $('cfgTimeout').value = cfg.timeout ?? 60;
+  // 匹配预设
+  document.querySelectorAll('.preset-card').forEach(c=>{
+    const k = c.dataset.preset;
+    if(k && PRESETS[k] && PRESETS[k].baseUrl === cfg.baseUrl && PRESETS[k].model === cfg.model){
+      c.classList.add('active');
+    } else c.classList.remove('active');
+  });
+}
+function saveAIConfig(){
+  const cfg = {
+    baseUrl: $('cfgBaseUrl').value.trim().replace(/\/+$/,''),
+    apiKey: $('cfgApiKey').value.trim(),
+    model: $('cfgModel').value.trim(),
+    temperature: parseFloat($('cfgTemperature').value) || 0.7,
+    timeout: parseInt($('cfgTimeout').value) || 60
+  };
+  if(!cfg.baseUrl){showToast('请填写 Base URL','error');return;}
+  if(!cfg.apiKey){showToast('请填写 API Key','error');return;}
+  if(!cfg.model){showToast('请填写模型名','error');return;}
+  localStorage.setItem('aiResumeConfig', JSON.stringify(cfg));
+  AI_CONFIG = cfg;
+  updateAIStatus();
+  showToast('✓ 配置已保存');
+  closeAIModal();
+}
+function clearAIConfig(){
+  if(!confirm('清除 AI 配置？清除后将回到本地启发式模式。')) return;
+  localStorage.removeItem('aiResumeConfig');
+  AI_CONFIG = null;
+  loadAIConfigToUI();
+  updateAIStatus();
+  showToast('已清除', 'info');
+}
+function loadAIConfig(){
+  try {
+    const raw = localStorage.getItem('aiResumeConfig');
+    if(raw){
+      AI_CONFIG = JSON.parse(raw);
+      return true;
+    }
+  } catch(e){}
+  return false;
+}
+function updateAIStatus(){
+  const el = $('aiStatus');
+  const text = $('aiStatusText');
+  if(AI_CONFIG){
+    el.className = 'ai-status on';
+    text.textContent = `AI 已连接 · ${AI_CONFIG.model}`;
+  } else {
+    el.className = 'ai-status off';
+    text.textContent = '本地模式（点击配置 AI）';
+  }
+}
+async function testConnection(){
+  const cfg = {
+    baseUrl: $('cfgBaseUrl').value.trim().replace(/\/+$/,''),
+    apiKey: $('cfgApiKey').value.trim(),
+    model: $('cfgModel').value.trim(),
+    timeout: 30
+  };
+  if(!cfg.baseUrl || !cfg.apiKey || !cfg.model){
+    showTestResult(false, '请完整填写 Base URL / API Key / 模型名');
+    return;
+  }
+  const res = $('testResult');
+  res.className = 'test-result show';
+  res.textContent = '正在测试连接...';
+  try {
+    const r = await callAI([
+      {role:'system', content:'你是测试助手。'},
+      {role:'user', content:'回复"OK"两个字即可，不要任何其他内容。'}
+    ], cfg, 0.1, 10);
+    showTestResult(true, `✓ 连接成功！模型返回："${r.trim().substring(0, 50)}"`);
+  } catch(e){
+    showTestResult(false, '✗ 连接失败：' + e.message);
+  }
+}
+function showTestResult(ok, msg){
+  const r = $('testResult');
+  r.className = 'test-result show ' + (ok?'ok':'err');
+  r.textContent = msg;
+}
+
+/* ============== 真实 AI 调用 ============== */
+async function callAI(messages, cfg, temperature, maxTokens){
+  cfg = cfg || AI_CONFIG;
+  temperature = temperature ?? cfg.temperature;
+  maxTokens = maxTokens ?? 4000;
+  const url = cfg.baseUrl + '/chat/completions';
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), (cfg.timeout || 60) * 1000);
+  try {
+    const resp = await fetch(url, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization': 'Bearer ' + cfg.apiKey
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens,
+        stream: false
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!resp.ok){
+      const errText = await resp.text().catch(()=>resp.statusText);
+      throw new Error(`HTTP ${resp.status} · ${errText.substring(0, 200)}`);
+    }
+    const data = await resp.json();
+    if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const content = data.choices?.[0]?.message?.content;
+    if(!content) throw new Error('响应中没有 content 字段');
+    return content;
+  } catch(e){
+    clearTimeout(timer);
+    if(e.name === 'AbortError') throw new Error('请求超时');
+    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
+      throw new Error('网络请求失败（可能是 CORS 跨域限制，请尝试支持浏览器直连的服务商，或使用后端代理）');
+    }
+    throw e;
+  }
+}
+
+/* ============== Prompt 构造 ============== */
+function buildPrompt(position, jd, experience, personalInfo, style){
+  const styleDesc = {
+    professional: '专业稳重型（适合传统行业、大厂、国企）',
+    modern: '现代简洁型（适合互联网、创业公司）',
+    creative: '创意活泼型（适合设计、市场、内容、传媒）'
+  }[style] || '现代简洁型';
+  
+  return `你是一位资深 HR 和职业顾问，擅长根据候选人经历和目标 JD 定制高质量简历。
+
+【目标岗位】${position}
+【简历风格】${styleDesc}
+
+【候选人个人信息】
+姓名：${personalInfo.name || '未填写'}
+联系方式：${personalInfo.contact || '未填写'}
+
+【候选人个人经历】（可能是模糊描述，请合理润色、补全动作宾语和量化成果，不要编造过于具体的数据）
+"""
+${experience}
+"""
+
+【目标岗位 JD】
+"""
+${jd || '（未提供 JD，请基于岗位名称通用化设计）'}
+"""
+
+请生成一份针对【${position}】岗位的定制化简历。要求：
+
+1. **结构完整**，按以下顺序输出（HTML 片段，不要 <html><body> 标签）：
+   - <h1>姓名</h1>
+   - <div class="sub-info">联系方式 · 意向岗位：${position}</div>
+   - <h2>个人简介</h2>：3-4 句话，紧密围绕${position}岗位要求，结合候选人经历
+   - <h2>核心亮点</h2>：3-5 条量化亮点（即使原始数据模糊，也要合理化包装，体现能力）
+   - <h2>工作经历</h2>：按时间倒序，每段经历用 <div class="item"> 包裹，包含 <div class="item-head"><span>公司·职位</span><span>时间</span></div> 和 <ul><li>...</li></ul>
+   - <h2>项目经历</h2>：2-3 个项目，每个项目用 <div class="item"> 包裹，包含项目名称、角色、描述、3-4 个项目要点（用 <ul><li>）</li></ul>
+   - <h2>专业技能</h2>：用 <div class="skills"><span class="skill">技能名</span>...</div> 包裹，10-15 个技能标签
+   - <h2>自我评价</h2>：3-4 句话，体现与${position}岗位的匹配度
+
+2. **润色原则**：
+   - 把"搞过/做过/参与"等专业化为"主导策划/负责/深度参与"
+   - 每条经历尽量体现"动作 + 方法 + 结果"
+   - 模糊的数据可以合理包装（如"显著提升"、"覆盖规模较大"），但不要编造虚假具体数字
+   - 主动融入 JD 中的关键技能词（必备技能优先）
+
+3. **输出格式**：纯 HTML 片段，使用 class 样式（h1/h2/h3、.item、.item-head、.item-sub、ul、.skills、.skill），不要包裹在 <html> 内，不要输出任何额外解释。
+
+开始生成：`;
+}
+
+/* ============== JD 关键词提取（本地兜底） ============== */
+function extractKeywords(jdText){
+  if(!jdText) return {mustHave:[], nice:[]};
+  const mustHave = [];
+  const nice = [];
+  const text = jdText.toLowerCase();
+  const skillDict = {
+    '产品':['prd','需求文档','用户调研','竞品分析','产品规划','axure','figma'],
+    '数据':['sql','python','excel','bi','tableau','power bi','数据驱动','a/b测试','指标体系','埋点'],
+    '运营':['用户增长','拉新','促活','留存','社群','活动策划','裂变','转化率','gmv'],
+    '市场':['品牌','营销','投放','sem','内容','seo','新媒体','小红书','抖音'],
+    '开发':['javascript','react','vue','node.js','java','python','前端','后端','git','api'],
+    '管理':['团队管理','带人','跨部门','项目管理','okr','kpi','向上汇报'],
+    '通用':['沟通','逻辑','抗压','学习能力','责任心','执行力','协作']
+  };
+  for(const [cat, words] of Object.entries(skillDict)){
+    words.forEach(w=>{
+      if(text.includes(w.toLowerCase()) || jdText.includes(w)){
+        if(['sql','python','prd','figma','excel'].includes(w.toLowerCase())) mustHave.push(w);
+        else nice.push(w);
+      }
+    });
+  }
+  return {mustHave:[...new Set(mustHave)], nice:[...new Set(nice)].slice(0, 12)};
+}
+
+/* ============== 本地兜底生成（无 AI 配置时） ============== */
+function polishExperience(rawText, position, keywords){
+  const segments = rawText.split(/\n\s*\n|(?=\d{4}[\-年])/).filter(s=>s.trim());
+  const polished = [];
+  segments.forEach(seg=>{
+    const lines = seg.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length===0) return;
+    let header = lines[0];
+    header = header.replace(/(\d{4})[\-年](\d{0,4})/g, (m,y1,y2)=>{
+      if(y2 && y2.length===4) return `${y1} - ${y2}`;
+      if(y2) return `${y1} - ${y2}`;
+      return `${y1} - 至今`;
+    });
+    const posLower = position.toLowerCase();
+    const headerLower = header.toLowerCase();
+    if(posLower.includes('产品') && !headerLower.includes('产品')) header += '（产品方向）';
+    else if(posLower.includes('数据') && !headerLower.includes('数据')) header += '（数据分析方向）';
+    else if(posLower.includes('运营') && !headerLower.includes('运营')) header += '（运营方向）';
+    else if(posLower.includes('市场') && !headerLower.includes('市场')) header += '（市场方向）';
+    
+    const titleMatch = header.match(/^([\d\s\-至.+]+)\s*(.+)$/);
+    let timeStr = '', roleStr = header;
+    if(titleMatch){
+      timeStr = titleMatch[1].trim();
+      roleStr = titleMatch[2].trim();
+    }
+    const items = [];
+    for(let i=1;i<lines.length;i++){
+      let line = lines[i];
+      if(line.startsWith('-') || line.startsWith('•') || /^\d+\./.test(line)){
+        line = line.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '');
+        line = enhanceLineLocal(line);
+        items.push(line);
+      } else items.push(line);
+    }
+    polished.push({time: timeStr, role: roleStr, items});
+  });
+  return polished;
+}
+function enhanceLineLocal(line){
+  let e = line;
+  const r = {'搞过':'主导策划','做过':'负责','弄过':'完成','参与':'深度参与','拉来':'获取','救过':'快速响应处理','撕过':'协调','折腾过':'独立探索','写过':'输出','带过':'管理'};
+  for(const [k,v] of Object.entries(r)) e = e.replace(new RegExp(k,'g'), v);
+  return e;
+}
+function generateProjectsLocal(position, polished, keywords){
+  const projects = [];
+  const posLower = position.toLowerCase();
+  if(polished.length > 0){
+    const recent = polished[polished.length-1];
+    projects.push({
+      name: recent.role.split(/（/)[0] + ' 核心项目',
+      role: position + '负责人',
+      desc: '围绕' + position + '核心业务展开，主导关键环节设计与执行',
+      points: recent.items.slice(0,3).map(i=>i)
+    });
+  }
+  const pts2 = [];
+  if(posLower.includes('产品')){
+    pts2.push('从 0 到 1 设计并落地产品 MVP，3 个月内完成核心功能闭环');
+    pts2.push('通过 50+ 用户调研，输出 PRD 文档 12 份，推动产品迭代 5 个版本');
+    pts2.push('主导 2 次 A/B 测试，关键转化指标提升 18%');
+  } else if(posLower.includes('数据')){
+    pts2.push('搭建业务核心指标体系，覆盖 5 大业务线');
+    pts2.push('通过 SQL 自动化报表，将周报产出时间从 4h 缩短至 30min');
+    pts2.push('主导 3 个 A/B 测试项目，验证后业务指标平均提升 15%+');
+  } else if(posLower.includes('运营')){
+    pts2.push('策划并执行用户增长活动，单月拉新 10w+，ROI 达 1:3.5');
+    pts2.push('搭建用户分层运营体系，30 日留存率提升 22%');
+    pts2.push('运营社群 5w+ 规模，月活跃度保持 35% 以上');
+  } else {
+    pts2.push('独立负责关键项目从规划到交付全流程');
+    pts2.push('协调多部门资源，推动项目按时高质量上线');
+    pts2.push('沉淀项目方法论，输出 SOP 文档 3 份');
+  }
+  projects.push({name:'核心业务' + position + '专项', role:'项目负责人', desc:'作为项目核心成员，主导关键模块的设计与执行', points:pts2});
+  return projects;
+}
+function localGenerateResume(position, jdText, experience, personalInfo, style){
+  const keywords = extractKeywords(jdText);
+  const polished = polishExperience(experience, position, keywords.mustHave.concat(keywords.nice));
+  const projects = generateProjectsLocal(position, polished, keywords);
+  const styleMap = {professional:{primary:'#1e40af'}, modern:{primary:'#667eea'}, creative:{primary:'#ec4899'}};
+  const st = styleMap[style] || styleMap.modern;
+  const name = personalInfo.name || '候选人';
+  const contact = personalInfo.contact || '';
+  
+  const expHtml = polished.map(p=>{
+    const items = p.items.filter(i=>i && !/^个人技能/.test(i)).map(i=>`<li>${i}</li>`).join('') || '<li>（详见下方项目经历）</li>';
+    return `<div class="item"><div class="item-head"><span>${p.role}</span><span style="color:#888;font-weight:normal">${p.time}</span></div><ul>${items}</ul></div>`;
+  }).join('');
+  const projHtml = projects.map(pr=>{
+    const pts = pr.points.map(p=>`<li>${p}</li>`).join('');
+    return `<div class="item"><div class="item-head"><span>${pr.name}</span><span style="color:#888;font-weight:normal">${pr.role}</span></div><div class="item-sub">${pr.desc}</div><ul>${pts}</ul></div>`;
+  }).join('');
+  const skills = [...new Set([...keywords.mustHave, ...keywords.nice.slice(0,6), '跨部门协作', '数据分析', '沟通表达', '项目管理'].filter(s=>s))].slice(0,14);
+  const skillsHtml = skills.map(s=>`<span class="skill" style="background:${st.primary}15;color:${st.primary}">${s}</span>`).join('');
+  
+  const html = `
+    <h1 style="color:${st.primary}">${name}</h1>
+    <div class="sub-info" style="border-bottom-color:${st.primary}">${contact ? contact + ' · ' : ''}意向岗位：<strong style="color:${st.primary}">${position}</strong></div>
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">个人简介</h2>
+    <p style="line-height:1.8;color:#444">拥有 ${polished.length} 段相关经历，${position}方向核心能力扎实，擅长将复杂问题拆解落地，跨部门协作与执行力强。</p>
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">核心亮点</h2>
+    <ul style="background:${st.primary}08;padding:14px 20px 14px 30px;border-radius:6px">
+      <li>具备产品/数据/运营复合能力，可独立闭环小型项目</li>
+      <li>拥有跨部门协作经验，善于在资源约束下推动项目落地</li>
+      <li>数据敏感度高，习惯用数据验证假设、指导决策</li>
+      <li>执行力强，能够在高压环境下按时交付高质量成果</li>
+    </ul>
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">工作经历</h2>
+    ${expHtml}
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">项目经历</h2>
+    ${projHtml}
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">专业技能</h2>
+    <div class="skills">${skillsHtml}</div>
+    <h2 style="color:${st.primary};border-left-color:${st.primary}">自我评价</h2>
+    <p style="line-height:1.8;color:#444">具备扎实的 ${position} 专业知识与丰富的实战经验。性格踏实、责任心强，工作中注重团队协作与目标达成。持续学习行业新知，期待在 ${position} 方向深耕发展。</p>
+  `;
+  return {html, keywords, summary:'本地生成'};
+}
+
+/* ============== 主流程 ============== */
+async function generate(){
+  if(isGenerating) return;
+  const positionsRaw = $('positions').value.trim();
+  const jd = $('jd').value.trim();
+  const exp = $('experience').value.trim();
+  
+  if(!positionsRaw && !jd){showToast('请至少输入目标岗位或 JD','error'); return;}
+  if(!exp){showToast('请输入个人经历','error'); return;}
+  
+  let positions = positionsRaw ? positionsRaw.split(/[,，、\s]+/).filter(p=>p) : [];
+  if(positions.length === 0) positions = ['通用岗位'];
+  
+  isGenerating = true;
+  const btn = $('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 正在生成...';
+  
+  const personalInfo = {name: $('name').value.trim(), contact: $('contact').value.trim()};
+  const style = $('style').value;
+  
+  resumes = [];
+  currentIdx = 0;
+  renderTabs();
+  $('resumePreview').innerHTML = '<div class="empty-state"><div class="big">⏳</div><div>正在生成...</div></div>';
+  $('exportActions').style.display = 'none';
+  $('matchInfo').classList.remove('show');
+  
+  const useAI = !!AI_CONFIG;
+  setStatus(useAI ? `🤖 正在调用 AI (${AI_CONFIG.model}) 生成 ${positions.length} 个版本...` : `📝 正在用本地模式生成 ${positions.length} 个版本...`);
+  
+  for(let i=0; i<positions.length; i++){
+    const pos = positions[i];
+    setStatus(`${useAI ? '🤖 AI' : '📝 本地'}生成中 (${i+1}/${positions.length})：${pos}`);
+    try {
+      let r;
+      if(useAI){
+        const prompt = buildPrompt(pos, jd, exp, personalInfo, style);
+        const aiResp = await callAI([
+          {role:'system', content:'你是一位资深 HR 和职业顾问。严格按照用户要求的 HTML 格式输出简历，不要任何额外解释。'},
+          {role:'user', content: prompt}
+        ], AI_CONFIG, AI_CONFIG.temperature, 4000);
+        r = {html: cleanAIOutput(aiResp), keywords: extractKeywords(jd), summary: 'AI 生成'};
+      } else {
+        r = localGenerateResume(pos, jd, exp, personalInfo, style);
+      }
+      resumes.push({position: pos, ...r});
+      currentIdx = i;
+      renderTabs();
+      renderPreview();
+    } catch(e){
+      showToast(`"${pos}" 生成失败：${e.message}`, 'error');
+      // AI 失败时降级到本地
+      const r = localGenerateResume(pos, jd, exp, personalInfo, style);
+      resumes.push({position: pos + '（本地降级）', ...r});
+    }
+  }
+  
+  if(resumes.length > 0){
+    $('exportActions').style.display = 'flex';
+    renderMatchInfo();
+  }
+  setStatus(`✓ 成功生成 ${resumes.length} 个版本 ${useAI ? '（AI 模式）' : '（本地模式）'}`);
+  showToast(`已生成 ${resumes.length} 个版本${useAI ? ' (AI)' : ''}`);
+  
+  isGenerating = false;
+  btn.disabled = false;
+  btn.innerHTML = '✨ 生成多版本简历';
+}
+
+function cleanAIOutput(text){
+  // 去除 AI 可能包裹的代码块标记
+  let t = text.trim();
+  t = t.replace(/^```html\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+  // 提取 <h1>...</h1> 之间的部分（如果 AI 输出了额外文字）
+  const h1Idx = t.indexOf('<h1');
+  const lastIdx = t.lastIndexOf('</p>');
+  if(h1Idx > 0) t = t.substring(h1Idx);
+  if(lastIdx > 0 && lastIdx < t.length - 10) t = t.substring(0, lastIdx + 4);
+  return t.trim();
+}
+
+function renderTabs(){
+  const c = $('tabsContainer');
+  if(resumes.length === 0){
+    c.innerHTML = '<span style="color:#999;padding:8px 14px;font-size:13px">点击"生成"后这里会出现多个岗位的简历版本</span>';
+    $('tabInfo').textContent = '';
+    return;
+  }
+  c.innerHTML = resumes.map((r,i)=>
+    `<div class="tab ${i===currentIdx?'active':''}" onclick="switchTab(${i})">${r.position}${resumes.length>1 ? `<span class="close-x" onclick="event.stopPropagation();removeTab(${i})">✕</span>`:''}</div>`
+  ).join('') + `<div class="add-tab" onclick="addNewVersion()">+</div>`;
+  $('tabInfo').textContent = `共 ${resumes.length} 个版本 · 当前：${resumes[currentIdx].position}`;
+}
+function switchTab(i){currentIdx=i; renderTabs(); renderPreview(); renderMatchInfo();}
+function removeTab(i){
+  if(resumes.length <= 1) return;
+  if(!confirm(`删除"${resumes[i].position}"版本？`)) return;
+  resumes.splice(i, 1);
+  if(currentIdx >= resumes.length) currentIdx = resumes.length - 1;
+  renderTabs(); renderPreview(); renderMatchInfo();
+  if(resumes.length === 0) $('exportActions').style.display='none';
+}
+async function addNewVersion(){
+  const pos = prompt('请输入新岗位名称：');
+  if(!pos) return;
+  const personalInfo = {name:$('name').value.trim(), contact:$('contact').value.trim()};
+  try {
+    let r;
+    if(AI_CONFIG){
+      const prompt = buildPrompt(pos, $('jd').value, $('experience').value, personalInfo, $('style').value);
+      const aiResp = await callAI([
+        {role:'system', content:'你是一位资深 HR 和职业顾问。严格按照用户要求的 HTML 格式输出简历，不要任何额外解释。'},
+        {role:'user', content: prompt}
+      ]);
+      r = {html: cleanAIOutput(aiResp), keywords: extractKeywords($('jd').value), summary:'AI 生成'};
+    } else {
+      r = localGenerateResume(pos, $('jd').value, $('experience').value, personalInfo, $('style').value);
+    }
+    resumes.push({position: pos, ...r});
+    currentIdx = resumes.length - 1;
+    renderTabs(); renderPreview(); renderMatchInfo();
+    $('exportActions').style.display = 'flex';
+    showToast('已添加：' + pos);
+  } catch(e){
+    showToast('生成失败：' + e.message, 'error');
+  }
+}
+function renderPreview(){
+  const p = $('resumePreview');
+  if(resumes.length === 0){
+    p.innerHTML = `<div class="empty-state"><div class="big">📄</div><div>填写左侧信息后点击生成<br>AI 将为你定制多个岗位方向的简历</div></div>`;
+    return;
+  }
+  p.innerHTML = resumes[currentIdx].html;
+}
+function renderMatchInfo(){
+  const r = resumes[currentIdx];
+  if(!r) return;
+  const info = $('matchInfo');
+  const mustHtml = r.keywords.mustHave.map(k=>`<span class="jd-chip must">${k}</span>`).join('');
+  const niceHtml = r.keywords.nice.map(k=>`<span class="jd-chip nice">${k}</span>`).join('');
+  info.innerHTML = `
+    <div style="margin-bottom:6px"><strong>📌 提取自 JD 的关键要求（简历已针对性强化）</strong></div>
+    <div class="jd-chips">${mustHtml}${niceHtml || '<span style="color:#888;font-size:12px">未提取到明显关键词</span>'}</div>
+  `;
+  info.classList.add('show');
+}
+
+/* ============== 导出 ============== */
+function exportPDF(){
+  if(resumes.length === 0) return;
+  const r = resumes[currentIdx];
+  showToast('正在生成 PDF...', 'info');
+  const el = $('resumePreview');
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `${r.position}_${$('name').value||'简历'}.pdf`,
+    image: {type: 'jpeg', quality: 0.98},
+    html2canvas: {scale: 2, useCORS: true, letterRendering: true},
+    jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'},
+    pagebreak: {mode: ['avoid-all', 'css', 'legacy']}
+  };
+  html2pdf().set(opt).from(el).save().then(()=>showToast('PDF 已下载')).catch(e=>showToast('PDF 导出失败：'+e.message,'error'));
+}
+function exportAllPDF(){
+  if(resumes.length === 0) return;
+  showToast(`正在导出 ${resumes.length} 份 PDF...`, 'info');
+  let i = 0;
+  const name = $('name').value || '简历';
+  const doNext = () => {
+    if(i >= resumes.length){showToast('全部导出完成'); return;}
+    currentIdx = i; renderPreview();
+    setTimeout(()=>{
+      html2pdf().set({
+        margin:[10,10,10,10], filename:`${resumes[i].position}_${name}.pdf`,
+        image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2, useCORS:true},
+        jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
+      }).from($('resumePreview')).save().then(()=>{i++; doNext();}).catch(e=>showToast('导出中断：'+e.message,'error'));
+    }, 300);
+  };
+  doNext();
+}
+function copyText(){
+  if(resumes.length === 0) return;
+  const html = resumes[currentIdx].html;
+  const text = html.replace(/<[^>]+>/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  navigator.clipboard.writeText(text).then(()=>showToast('已复制到剪贴板')).catch(()=>showToast('复制失败','error'));
+}
+function downloadHTML(){
+  if(resumes.length === 0) return;
+  const r = resumes[currentIdx];
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${r.position}_${$('name').value||'简历'}</title>
+    <style>
+      body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;max-width:780px;margin:30px auto;padding:40px;color:#222;line-height:1.7}
+      h1{text-align:center;margin-bottom:4px}
+      .sub-info{text-align:center;color:#666;border-bottom:2px solid #667eea;padding-bottom:14px;margin-bottom:18px}
+      h2{color:#667eea;border-left:3px solid #667eea;padding-left:10px;margin:18px 0 8px;font-size:16px}
+      .item{margin-bottom:10px}
+      .item-head{display:flex;justify-content:space-between;font-weight:600}
+      .item-sub{color:#777;font-size:13px;margin-bottom:3px}
+      ul{padding-left:20px}
+      .skills{display:flex;flex-wrap:wrap;gap:6px}
+      .skill{background:#eef0ff;color:#5b6ce0;padding:3px 10px;border-radius:4px;font-size:12px}
+    </style></head><body>${r.html}</body></html>`;
+  const blob = new Blob([fullHtml],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${r.position}_${$('name').value||'简历'}.html`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('HTML 已下载');
+}
+
+// 初始化
+loadAIConfig();
+updateAIStatus();
+
+// JD 实时预览
+$('jd').addEventListener('input', ()=>{
+  if(resumes.length === 0 && $('jd').value.length > 20){
+    const kw = extractKeywords($('jd').value);
+    const info = $('matchInfo');
+    const mustHtml = kw.mustHave.map(k=>`<span class="jd-chip must">${k}</span>`).join('');
+    const niceHtml = kw.nice.map(k=>`<span class="jd-chip nice">${k}</span>`).join('');
+    if(mustHtml || niceHtml){
+      info.innerHTML = `<div style="margin-bottom:6px"><strong>👀 JD 关键要求预览（点击生成后会自动融入简历）</strong></div><div class="jd-chips">${mustHtml}${niceHtml}</div>`;
+      info.classList.add('show');
+    }
+  }
+});
+</script>
+</body>
+</html>
