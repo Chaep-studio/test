@@ -7,413 +7,684 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root{
-    --primary:#6366f1;
-    --primary-2:#8b5cf6;
-    --primary-3:#ec4899;
-    --bg-1:#eef2ff;
-    --bg-2:#faf5ff;
-    --bg-3:#fdf2f8;
-    --ink:#0f172a;
-    --ink-2:#475569;
-    --ink-3:#94a3b8;
-    --line:#e2e8f0;
-    --line-2:#f1f5f9;
-    --card:rgba(255,255,255,0.78);
-    --card-solid:#ffffff;
-    --radius:18px;
-    --radius-sm:10px;
-    --shadow-sm:0 1px 2px rgba(15,23,42,.04),0 2px 8px rgba(15,23,42,.04);
-    --shadow:0 4px 12px rgba(99,102,241,.08),0 12px 32px rgba(99,102,241,.08);
-    --shadow-lg:0 20px 50px rgba(99,102,241,.18);
+    --bg:           #f6f4ee;
+    --bg-2:         #efebe1;
+    --surface:      #fdfcf9;
+    --surface-2:    #f8f5ee;
+    --ink:          #1a1a1a;
+    --ink-2:        #4a4a4a;
+    --ink-3:        #8a8a85;
+    --ink-4:        #b5b3ab;
+    --line:         #e3dfd3;
+    --line-2:       #ece8db;
+    --accent:       #9a3412;   /* 暖琥珀 */
+    --accent-2:     #b45309;
+    --accent-soft:  #f5e6d3;
+    --positive:     #166534;
+    --warn:         #92400e;
+    --danger:       #991b1b;
+    --radius:       4px;
+    --radius-md:    8px;
+    --radius-lg:    12px;
+    --serif:        "Source Serif Pro","Source Han Serif SC","Noto Serif SC","Songti SC","SimSun",Georgia,serif;
+    --sans:         -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    --mono:         "SF Mono","JetBrains Mono","Menlo",Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{min-height:100%}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    background:
-      radial-gradient(1100px 700px at 10% -10%, #c7d2fe 0%, transparent 60%),
-      radial-gradient(900px 600px at 110% 0%, #fbcfe8 0%, transparent 55%),
-      radial-gradient(900px 600px at 50% 110%, #bae6fd 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 60%, var(--bg-3) 100%);
-    background-attachment:fixed;
-    min-height:100vh;
-    padding:28px 20px 60px;
+    font-family:var(--sans);
+    background:var(--bg);
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
+    font-feature-settings:"tnum" 1, "kern" 1;
+    line-height:1.6;
   }
-  body::before{
-    content:"";
-    position:fixed;inset:0;
-    background-image:
-      radial-gradient(circle at 20% 30%, rgba(99,102,241,.08) 0, transparent 2px),
-      radial-gradient(circle at 70% 60%, rgba(236,72,153,.08) 0, transparent 2px),
-      radial-gradient(circle at 40% 80%, rgba(139,92,246,.08) 0, transparent 2px);
-    background-size: 60px 60px, 80px 80px, 70px 70px;
-    pointer-events:none;
-    z-index:0;
-  }
-  .container{max-width:1400px;margin:0 auto;position:relative;z-index:1}
+  .container{max-width:1320px;margin:0 auto;padding:48px 40px 80px}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* ============ Header ============ */
   .header{
-    text-align:center;
-    color:var(--ink);
-    margin-bottom:28px;
-    padding:24px 20px 8px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:end;
+    padding-bottom:28px;
+    margin-bottom:36px;
+    border-bottom:1px solid var(--ink);
     position:relative;
   }
-  .header .brand{
-    display:inline-flex;align-items:center;gap:10px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-2) 50%,var(--primary-3));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    font-size:34px;font-weight:800;letter-spacing:-.5px;
+  .header::after{
+    content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;
+    background:var(--ink);
   }
-  .header .brand .logo{
-    width:38px;height:38px;border-radius:11px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-2) 50%,var(--primary-3));
-    color:#fff;display:inline-flex;align-items:center;justify-content:center;
-    box-shadow:0 8px 22px rgba(139,92,246,.35);
-    -webkit-text-fill-color:#fff;
-  }
-  .header p{font-size:14.5px;color:var(--ink-2);margin-top:8px;letter-spacing:.2px}
-  .ai-status{
-    position:absolute;top:24px;right:0;
-    display:flex;align-items:center;gap:8px;
-    background:rgba(255,255,255,.7);
-    backdrop-filter:saturate(180%) blur(14px);
-    -webkit-backdrop-filter:saturate(180%) blur(14px);
-    padding:7px 14px;border-radius:999px;font-size:12.5px;color:var(--ink-2);
-    cursor:pointer;border:1px solid rgba(255,255,255,.9);
-    box-shadow:var(--shadow-sm);
-    transition:transform .2s ease, box-shadow .2s ease;
-  }
-  .ai-status:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
-  .ai-status .dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 0 rgba(245,158,11,.6);animation:pulse 1.8s infinite}
-  .ai-status.on .dot{background:#10b981;box-shadow:0 0 0 0 rgba(16,185,129,.6)}
-  .ai-status.off .dot{background:#ef4444;animation:none}
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(16,185,129,.55)}
-    70%{box-shadow:0 0 0 8px rgba(16,185,129,0)}
-    100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}
-  }
-  .main{display:grid;grid-template-columns:1fr 1.3fr;gap:22px}
-  .panel{
-    background:var(--card);
-    backdrop-filter:saturate(180%) blur(18px);
-    -webkit-backdrop-filter:saturate(180%) blur(18px);
-    border:1px solid rgba(255,255,255,.7);
-    border-radius:var(--radius);
-    padding:24px;
-    box-shadow:var(--shadow);
-  }
-  .panel-title{
-    font-size:16px;font-weight:700;margin-bottom:16px;
-    display:flex;align-items:center;gap:10px;color:var(--ink);
-    letter-spacing:.2px;
-  }
-  .panel-title .icon{
-    width:28px;height:28px;border-radius:8px;
-    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  .brand-block{display:flex;align-items:center;gap:14px}
+  .brand-mark{
+    width:44px;height:44px;
     display:inline-flex;align-items:center;justify-content:center;
-    color:#fff;font-size:13px;font-weight:700;
-    box-shadow:0 6px 16px rgba(99,102,241,.35);
+    background:var(--ink);color:var(--bg);
+    border-radius:2px;
   }
-  .form-group{margin-bottom:16px}
-  label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px;color:#334155;letter-spacing:.2px}
-  textarea,input,select{
-    width:100%;padding:11px 13px;
-    border:1.5px solid var(--line);
-    border-radius:12px;font-size:14px;
-    font-family:inherit;
-    background:rgba(255,255,255,.85);
+  .brand-mark svg{width:22px;height:22px;display:block}
+  .brand-text{display:flex;flex-direction:column;line-height:1}
+  .brand-text .name{
+    font-family:var(--serif);
+    font-size:30px;font-weight:600;
+    letter-spacing:-.5px;
     color:var(--ink);
-    transition:border-color .2s, box-shadow .2s, background .2s, transform .05s;
   }
-  textarea{resize:vertical;min-height:92px;line-height:1.6}
-  textarea:hover,input:hover,select:hover{border-color:#cbd5e1}
-  textarea:focus,input:focus,select:focus{
-    outline:none;border-color:var(--primary);
-    background:#fff;
-    box-shadow:0 0 0 4px rgba(99,102,241,.12);
-  }
-  select{
-    appearance:none;-webkit-appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat:no-repeat;background-position:right 12px center;background-size:14px;
-    padding-right:36px;
-  }
-  .tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .tag{
-    background:rgba(238,242,255,.9);color:#4f46e5;
-    padding:4px 11px;border-radius:999px;font-size:12px;
-    cursor:pointer;user-select:none;
-    border:1px solid rgba(99,102,241,.18);
-    transition:all .15s ease;
-  }
-  .tag:hover{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-color:transparent;transform:translateY(-1px)}
-  .btn{
-    padding:10px 18px;border:none;border-radius:12px;
-    font-size:14px;font-weight:600;cursor:pointer;
-    font-family:inherit;display:inline-flex;align-items:center;gap:7px;
-    transition:transform .15s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
-    letter-spacing:.2px;
-  }
-  .btn:active{transform:translateY(1px)}
-  .btn-primary{
-    background:linear-gradient(135deg,var(--primary),var(--primary-2) 60%,var(--primary-3));
-    color:#fff;
-    box-shadow:0 8px 20px rgba(99,102,241,.35);
-  }
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(139,92,246,.45)}
-  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
-  .btn-secondary{background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}
-  .btn-secondary:hover{background:#e2e8f0}
-  .btn-success{
-    background:linear-gradient(135deg,#10b981,#059669);color:#fff;
-    box-shadow:0 8px 20px rgba(16,185,129,.3);
-  }
-  .btn-success:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(16,185,129,.4)}
-  .btn-ghost{background:transparent;color:var(--primary);border:1.5px solid rgba(99,102,241,.4)}
-  .btn-ghost:hover{background:rgba(99,102,241,.08);border-color:var(--primary)}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-  .right-tabs{
-    display:flex;gap:4px;margin-bottom:14px;
-    border-bottom:1.5px solid var(--line-2);
-    flex-wrap:wrap;align-items:center;padding-bottom:0;
-  }
-  .tab{
-    padding:9px 14px;cursor:pointer;font-size:13px;color:var(--ink-2);
-    border:none;background:transparent;margin-bottom:-1.5px;
-    transition:all .18s ease;border-radius:8px 8px 0 0;
-    position:relative;font-weight:500;
-  }
-  .tab:hover{color:var(--primary);background:rgba(99,102,241,.05)}
-  .tab.active{
-    color:var(--primary);font-weight:700;
-    background:linear-gradient(180deg,rgba(99,102,241,.08),transparent);
-  }
-  .tab.active::after{
-    content:"";position:absolute;left:8px;right:8px;bottom:-1.5px;height:2.5px;
-    background:linear-gradient(90deg,var(--primary),var(--primary-3));
-    border-radius:3px;
-  }
-  .tab .close-x{margin-left:6px;font-size:11px;opacity:.5;padding:0 4px;border-radius:4px}
-  .tab .close-x:hover{opacity:1;color:#ef4444;background:rgba(239,68,68,.1)}
-  .add-tab{
-    padding:6px 10px;cursor:pointer;color:var(--ink-3);
-    font-size:18px;line-height:1;border-radius:8px;margin-left:4px;
-    transition:all .15s;
-  }
-  .add-tab:hover{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
-  .resume-preview{
-    background:#fff;
-    border:1px solid var(--line-2);
-    border-radius:14px;
-    min-height:600px;padding:36px 40px;
-    line-height:1.75;font-size:13.5px;
-    max-height:75vh;overflow-y:auto;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
-  }
-  .resume-preview::-webkit-scrollbar{width:8px}
-  .resume-preview::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
-  .resume-preview::-webkit-scrollbar-thumb:hover{background:#94a3b8}
-  .resume-preview h1{
-    font-size:26px;margin-bottom:4px;color:#0f172a;
-    text-align:center;letter-spacing:.5px;font-weight:800;
-  }
-  .resume-preview .sub-info{
-    text-align:center;color:#64748b;font-size:13px;
-    margin-bottom:18px;padding-bottom:14px;
-    border-bottom:2px solid var(--primary);
-  }
-  .resume-preview h2{
-    font-size:15px;color:var(--primary);
-    margin:20px 0 10px;padding-left:12px;
-    border-left:3px solid var(--primary);
-    font-weight:700;letter-spacing:.3px;
-  }
-  .resume-preview .item{margin-bottom:12px}
-  .resume-preview .item-head{
-    display:flex;justify-content:space-between;
-    font-weight:600;color:#1e293b;
-  }
-  .resume-preview .item-sub{color:#64748b;font-size:12.5px;margin-bottom:4px}
-  .resume-preview ul{padding-left:20px;color:#334155}
-  .resume-preview li{margin-bottom:4px;line-height:1.7}
-  .resume-preview .skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-  .resume-preview .skill{
-    background:rgba(99,102,241,.08);color:#4f46e5;
-    padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;
-  }
-  .empty-state{
-    text-align:center;color:#94a3b8;
-    padding:90px 20px;font-size:14px;
-  }
-  .empty-state .big{font-size:54px;margin-bottom:14px;opacity:.55;filter:saturate(1.1)}
-  .empty-state .hint-line{margin-top:6px;font-size:12.5px;color:#a3a3a3}
-  .status-bar{
-    margin-top:12px;padding:10px 14px;
-    background:linear-gradient(135deg,#eff6ff,#dbeafe);
-    border:1px solid #bfdbfe;
-    border-radius:10px;font-size:12.5px;color:#1d4ed8;
-    display:none;
-  }
-  .status-bar.show{display:block;animation:fadeIn .3s ease}
-  .status-bar.error{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:#fecaca;color:#b91c1c}
-  .match-info{
-    margin-top:10px;padding:12px 14px;
-    background:linear-gradient(135deg,#fef9c3,#fde68a);
-    border:1px solid #fde68a;border-radius:10px;
-    font-size:12.5px;color:#854d0e;
-    display:none;
-  }
-  .match-info.show{display:block;animation:fadeIn .3s ease}
-  .jd-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:8px;background:rgba(255,255,255,.6);border-radius:8px;min-height:30px}
-  .jd-chip{
-    background:#fff;border:1px solid #d1d5db;
-    padding:3px 10px;border-radius:999px;font-size:12px;color:#374151;
-  }
-  .jd-chip.must{background:#fee2e2;border-color:#fca5a5;color:#991b1b;font-weight:600}
-  .jd-chip.nice{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
-  .toast{
-    position:fixed;top:30px;right:30px;
-    background:linear-gradient(135deg,#10b981,#059669);color:#fff;
-    padding:12px 22px;border-radius:12px;
-    box-shadow:0 12px 32px rgba(16,185,129,.4);
-    transform:translateX(420px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-    z-index:1000;font-size:14px;font-weight:500;
-    max-width:380px;display:flex;align-items:center;gap:8px;
-  }
-  .toast.show{transform:translateX(0)}
-  .toast.error{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 12px 32px rgba(239,68,68,.4)}
-  .toast.info{background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 12px 32px rgba(59,130,246,.4)}
-  .hint{font-size:12px;color:#94a3b8;margin-top:4px}
-  .spinner{
-    display:inline-block;width:12px;height:12px;
-    border:2px solid rgba(255,255,255,.45);
-    border-top-color:#fff;border-radius:50%;
-    animation:spin .6s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes float{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-6px)}
-  }
-  .typing-cursor{
-    display:inline-block;width:2px;height:14px;background:var(--primary);
-    margin-left:2px;animation:blink 1s infinite;vertical-align:text-bottom;
-  }
-  /* AI 配置弹窗 */
-  .modal-overlay{
-    position:fixed;inset:0;
-    background:rgba(15,23,42,.55);
-    z-index:2000;display:none;align-items:center;justify-content:center;
-    padding:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  }
-  .modal-overlay.show{display:flex;animation:fadeIn .25s ease}
-  .modal{
-    background:#fff;border-radius:20px;
-    width:100%;max-width:580px;max-height:90vh;overflow-y:auto;
-    padding:30px;
-    box-shadow:0 25px 60px rgba(15,23,42,.3);
-    position:relative;
-    border:1px solid rgba(255,255,255,.8);
-  }
-  .modal::-webkit-scrollbar{width:8px}
-  .modal::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
-  .modal h2{
-    font-size:20px;margin-bottom:6px;color:#0f172a;
-    font-weight:700;letter-spacing:-.2px;
-  }
-  .modal .sub-title{color:#64748b;font-size:13px;margin-bottom:20px;line-height:1.5}
-  .modal .row{display:flex;gap:10px;margin-bottom:12px}
-  .modal .row > *{flex:1}
-  .modal .close-btn{
-    position:absolute;top:18px;right:18px;
-    background:#f1f5f9;border:none;font-size:18px;
-    cursor:pointer;color:#64748b;
-    width:32px;height:32px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    transition:all .15s;
-  }
-  .modal .close-btn:hover{background:#e2e8f0;color:#0f172a;transform:rotate(90deg)}
-  .modal .preset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-  .preset-card{
-    padding:12px 14px;
-    border:1.5px solid var(--line);
-    border-radius:12px;cursor:pointer;
-    transition:all .2s ease;font-size:13px;position:relative;
-    background:#fff;
-  }
-  .preset-card:hover{border-color:var(--primary);background:rgba(99,102,241,.04);transform:translateY(-2px)}
-  .preset-card.active{
-    border-color:var(--primary);
-    background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(236,72,153,.06));
-    box-shadow:0 6px 18px rgba(99,102,241,.15);
-  }
-  .preset-card .name{font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
-  .preset-card .name .badge{
-    font-size:10px;background:linear-gradient(135deg,#10b981,#059669);
-    color:#fff;padding:2px 7px;border-radius:999px;font-weight:600;
-  }
-  .preset-card .desc{color:#64748b;font-size:11.5px;margin-top:4px;line-height:1.4}
-  .modal .api-key-wrap{position:relative}
-  .modal .api-key-wrap input{padding-right:90px}
-  .modal .api-key-wrap .toggle-vis{
-    position:absolute;right:8px;top:50%;transform:translateY(-50%);
-    background:transparent;border:none;color:var(--primary);
-    cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;
+  .brand-text .name em{
+    font-style:italic;
+    color:var(--accent);
     font-weight:500;
   }
-  .modal .api-key-wrap .toggle-vis:hover{background:rgba(99,102,241,.08)}
+  .brand-text .sub{
+    margin-top:6px;
+    font-size:11.5px;letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--ink-3);
+    font-weight:500;
+  }
+  .ai-status{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 12px 6px 10px;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:12px;color:var(--ink-2);
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+    font-family:var(--sans);
+  }
+  .ai-status:hover{border-color:var(--ink);color:var(--ink)}
+  .ai-status .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ink-4);
+    position:relative;
+  }
+  .ai-status.on .dot{background:var(--positive)}
+  .ai-status.on .dot::after{
+    content:"";position:absolute;inset:-3px;border-radius:50%;
+    border:1px solid var(--positive);opacity:.4;
+    animation:pulse 2s ease-out infinite;
+  }
+  .ai-status.off .dot{background:var(--danger)}
+  @keyframes pulse{
+    0%{transform:scale(.8);opacity:.6}
+    100%{transform:scale(2);opacity:0}
+  }
+  .ai-status .label-meta{color:var(--ink-3);font-family:var(--mono);font-size:10.5px;letter-spacing:.3px}
+  .ai-status.on .label-meta{color:var(--ink-2)}
+
+  /* ============ Layout ============ */
+  .main{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:start}
+  .panel{position:relative}
+  .panel-header{
+    display:flex;align-items:baseline;gap:14px;
+    margin-bottom:24px;padding-bottom:14px;
+    border-bottom:1px solid var(--line);
+  }
+  .panel-header .step{
+    font-family:var(--serif);
+    font-size:13px;font-style:italic;
+    color:var(--accent);
+    letter-spacing:1px;
+  }
+  .panel-header .title{
+    font-family:var(--serif);
+    font-size:20px;font-weight:600;
+    color:var(--ink);
+    letter-spacing:-.2px;
+  }
+  .panel-header .meta{
+    margin-left:auto;
+    font-size:11px;color:var(--ink-3);
+    font-family:var(--mono);letter-spacing:.5px;
+    text-transform:uppercase;
+  }
+
+  /* ============ Form ============ */
+  .form-group{margin-bottom:20px}
+  label{
+    display:flex;align-items:baseline;gap:6px;
+    font-size:11px;letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--ink-2);
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  label .opt{color:var(--ink-3);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;margin-left:auto;font-family:var(--mono)}
+  textarea,input,select{
+    width:100%;padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;line-height:1.55;
+    transition:border-color .15s, background .15s;
+  }
+  textarea{resize:vertical;min-height:96px;font-family:var(--sans)}
+  textarea:hover,input:hover,select:hover{border-color:var(--ink-4)}
+  textarea:focus,input:focus,select:focus{
+    outline:none;border-color:var(--ink);
+    background:#fff;
+  }
+  input::placeholder,textarea::placeholder{color:var(--ink-4);font-style:italic}
+  select{
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:12px;
+    padding-right:36px;
+  }
+  .tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;
+    background:transparent;
+    color:var(--ink-2);
+    padding:4px 10px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:12px;
+    cursor:pointer;user-select:none;
+    transition:all .15s;
+    font-family:var(--sans);
+  }
+  .tag::before{content:"+";color:var(--ink-3);font-family:var(--mono);font-size:11px;line-height:1}
+  .tag:hover{
+    color:var(--ink);
+    border-color:var(--ink);
+    background:var(--ink);
+    color:var(--bg);
+  }
+  .tag:hover::before{color:var(--bg)}
+  .hint{font-size:11.5px;color:var(--ink-3);margin-top:5px;font-style:italic}
+
+  /* ============ Buttons ============ */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 20px;
+    border:none;border-radius:var(--radius);
+    font-family:var(--sans);
+    font-size:13px;letter-spacing:.3px;
+    cursor:pointer;
+    transition:all .15s;
+    font-weight:500;
+  }
+  .btn-primary{
+    background:var(--ink);color:var(--bg);
+  }
+  .btn-primary:hover{background:#000}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed}
+  .btn-secondary{
+    background:transparent;color:var(--ink-2);
+    border:1px solid var(--line);
+  }
+  .btn-secondary:hover{border-color:var(--ink);color:var(--ink)}
+  .btn-accent{
+    background:var(--accent);color:#fff;
+  }
+  .btn-accent:hover{background:var(--accent-2)}
+  .btn-ghost{
+    background:transparent;color:var(--ink-2);
+    padding:11px 12px;
+  }
+  .btn-ghost:hover{color:var(--ink)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px dashed var(--line)}
+  .actions .btn-ghost{margin-left:auto}
+
+  /* ============ Tabs ============ */
+  .right-tabs{
+    display:flex;gap:0;margin-bottom:0;
+    border-bottom:1px solid var(--ink);
+    flex-wrap:wrap;align-items:stretch;
+  }
+  .tab{
+    padding:12px 18px;
+    cursor:pointer;
+    font-size:13px;
+    color:var(--ink-3);
+    background:transparent;border:none;
+    font-family:var(--sans);
+    border-right:1px solid var(--line);
+    transition:color .15s, background .15s;
+    position:relative;
+    display:inline-flex;align-items:center;gap:8px;
+    letter-spacing:.2px;
+  }
+  .tab:hover{color:var(--ink-2);background:var(--surface-2)}
+  .tab.active{
+    color:var(--ink);
+    background:var(--bg);
+  }
+  .tab.active::before{
+    content:"";position:absolute;
+    left:0;right:0;top:-1px;height:2px;background:var(--ink);
+  }
+  .tab .pos-num{
+    font-family:var(--mono);font-size:10.5px;
+    color:var(--ink-3);
+  }
+  .tab.active .pos-num{color:var(--accent)}
+  .tab .close-x{
+    margin-left:2px;font-size:14px;line-height:1;
+    color:var(--ink-3);opacity:.6;
+    width:16px;height:16px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border-radius:50%;
+  }
+  .tab .close-x:hover{opacity:1;background:var(--ink);color:var(--bg)}
+  .add-tab{
+    padding:0 16px;cursor:pointer;
+    color:var(--ink-3);
+    font-size:18px;line-height:1;
+    background:transparent;border:none;
+    transition:color .15s, background .15s;
+    font-family:var(--mono);
+  }
+  .add-tab:hover{color:var(--ink);background:var(--surface-2)}
+
+  /* ============ Resume Preview ============ */
+  .preview-wrap{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .preview-toolbar{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 16px;
+    background:var(--surface-2);
+    border-bottom:1px solid var(--line);
+    font-size:11.5px;color:var(--ink-3);
+    font-family:var(--mono);letter-spacing:.3px;
+  }
+  .preview-toolbar .dot-row{display:inline-flex;gap:6px;align-items:center;margin-right:auto}
+  .preview-toolbar .dot-row span{width:8px;height:8px;border-radius:50%;background:var(--line)}
+  .preview-toolbar .dot-row span:nth-child(1){background:#d97706}
+  .preview-toolbar .dot-row span:nth-child(2){background:#65a30d}
+  .preview-toolbar .dot-row span:nth-child(3){background:#0891b2}
+  .resume-preview{
+    padding:56px 64px;
+    min-height:640px;
+    max-height:78vh;overflow-y:auto;
+    line-height:1.75;font-size:14px;
+    color:var(--ink-2);
+    font-family:var(--serif);
+  }
+  .resume-preview::-webkit-scrollbar{width:8px}
+  .resume-preview::-webkit-scrollbar-thumb{background:var(--line);border-radius:0}
+  .resume-preview::-webkit-scrollbar-thumb:hover{background:var(--ink-4)}
+  .resume-preview h1{
+    font-size:32px;font-weight:600;
+    color:var(--ink);text-align:left;
+    letter-spacing:-.5px;
+    font-family:var(--serif);
+    margin-bottom:6px;
+  }
+  .resume-preview .sub-info{
+    color:var(--ink-3);font-size:13px;
+    margin-bottom:28px;padding-bottom:20px;
+    border-bottom:1px solid var(--ink);
+    font-family:var(--sans);
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+  }
+  .resume-preview .sub-info strong{color:var(--ink);font-weight:500}
+  .resume-preview .sub-info .sep{color:var(--ink-4)}
+  .resume-preview h2{
+    font-size:11px;letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin:30px 0 14px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--ink);
+    font-family:var(--sans);
+    font-weight:600;
+    display:flex;align-items:center;gap:10px;
+  }
+  .resume-preview h2::before{
+    content:"";width:6px;height:6px;
+    background:var(--accent);display:inline-block;
+  }
+  .resume-preview .item{margin-bottom:18px}
+  .resume-preview .item-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-weight:600;color:var(--ink);
+    font-family:var(--sans);
+    font-size:14px;
+    margin-bottom:4px;
+  }
+  .resume-preview .item-head .period{
+    font-weight:400;color:var(--ink-3);
+    font-size:12.5px;font-family:var(--mono);
+    letter-spacing:.3px;
+  }
+  .resume-preview .item-sub{
+    color:var(--ink-3);font-size:12.5px;margin-bottom:6px;
+    font-style:italic;
+  }
+  .resume-preview ul{
+    padding-left:18px;
+    color:var(--ink-2);
+  }
+  .resume-preview ul li{
+    margin-bottom:5px;line-height:1.75;
+    padding-left:4px;
+  }
+  .resume-preview ul li::marker{color:var(--accent)}
+  .resume-preview .skills{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin-top:4px;
+  }
+  .resume-preview .skill{
+    background:transparent;
+    color:var(--ink-2);
+    padding:3px 0;
+    font-size:13px;
+    font-family:var(--sans);
+    border-bottom:1px dotted var(--ink-4);
+  }
+
+  /* ============ Empty State ============ */
+  .empty-state{
+    text-align:center;
+    color:var(--ink-3);
+    padding:96px 24px;
+    font-family:var(--serif);
+  }
+  .empty-state svg{
+    width:64px;height:64px;
+    color:var(--ink-4);
+    margin:0 auto 24px;
+    display:block;
+  }
+  .empty-state .es-title{
+    font-size:18px;
+    color:var(--ink-2);
+    font-style:italic;
+    margin-bottom:8px;
+    font-family:var(--serif);
+  }
+  .empty-state .es-sub{
+    font-size:13px;
+    color:var(--ink-3);
+    font-family:var(--sans);
+  }
+  .empty-state .es-sub kbd{
+    display:inline-block;
+    padding:2px 7px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:3px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-2);
+    margin:0 2px;
+  }
+
+  /* ============ Status & Match ============ */
+  .status-bar{
+    margin-top:18px;padding:10px 14px;
+    background:var(--surface-2);
+    border-left:2px solid var(--ink);
+    font-size:12.5px;color:var(--ink-2);
+    display:none;
+    font-family:var(--sans);
+  }
+  .status-bar.show{display:block;animation:fadeIn .3s ease}
+  .status-bar.error{border-left-color:var(--danger);color:var(--danger);background:#fef2f2}
+  .match-info{
+    margin-top:14px;padding:14px 16px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    font-size:12.5px;color:var(--ink-2);
+    display:none;
+    font-family:var(--sans);
+  }
+  .match-info.show{display:block;animation:fadeIn .3s ease}
+  .match-info .mi-title{
+    display:flex;align-items:center;gap:8px;
+    font-size:11px;letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--ink-2);
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  .match-info .mi-title::before{
+    content:"";width:5px;height:5px;background:var(--accent);
+  }
+  .jd-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);min-height:34px}
+  .jd-chip{
+    background:transparent;border:1px solid var(--line);
+    padding:2px 9px;border-radius:999px;
+    font-size:11.5px;color:var(--ink-2);
+    font-family:var(--sans);
+  }
+  .jd-chip.must{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+  .jd-chip.nice{color:var(--ink-2)}
+
+  /* ============ Toast ============ */
+  .toast{
+    position:fixed;top:32px;right:32px;
+    background:var(--ink);color:var(--bg);
+    padding:12px 20px 12px 16px;
+    border-radius:var(--radius);
+    box-shadow:0 12px 32px rgba(26,26,26,.18);
+    transform:translateX(440px);
+    transition:transform .35s cubic-bezier(.16,1,.3,1);
+    z-index:1000;
+    font-size:13px;
+    max-width:380px;
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--sans);
+    border-left:3px solid var(--accent);
+  }
+  .toast.show{transform:translateX(0)}
+  .toast .t-icon{
+    width:18px;height:18px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;font-family:var(--mono);
+    color:var(--positive);background:#dcfce7;border-radius:50%;
+  }
+  .toast.error{border-left-color:var(--danger)}
+  .toast.error .t-icon{color:var(--danger);background:#fee2e2;border-radius:50%}
+  .toast.info{border-left-color:#0369a1}
+  .toast.info .t-icon{color:#0369a1;background:#dbeafe;border-radius:50%}
+
+  /* ============ Modal ============ */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(26,26,26,.45);
+    z-index:2000;display:none;align-items:center;justify-content:center;
+    padding:20px;
+    backdrop-filter:blur(2px);
+    -webkit-backdrop-filter:blur(2px);
+  }
+  .modal-overlay.show{display:flex;animation:fadeIn .2s ease}
+  .modal{
+    background:var(--surface);
+    border-radius:var(--radius-lg);
+    width:100%;max-width:600px;max-height:90vh;overflow-y:auto;
+    padding:36px 40px;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
+    position:relative;
+    border:1px solid var(--line);
+  }
+  .modal::-webkit-scrollbar{width:8px}
+  .modal::-webkit-scrollbar-thumb{background:var(--line)}
+  .modal .modal-header{
+    margin-bottom:24px;padding-bottom:18px;
+    border-bottom:1px solid var(--ink);
+  }
+  .modal h2{
+    font-family:var(--serif);
+    font-size:24px;font-weight:600;
+    color:var(--ink);
+    letter-spacing:-.3px;
+    margin-bottom:4px;
+  }
+  .modal .sub-title{
+    color:var(--ink-3);font-size:13px;
+    font-style:italic;
+    font-family:var(--serif);
+  }
+  .modal .close-btn{
+    position:absolute;top:18px;right:18px;
+    background:transparent;border:none;
+    cursor:pointer;color:var(--ink-3);
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    transition:color .15s, background .15s;
+    border-radius:50%;
+  }
+  .modal .close-btn:hover{color:var(--ink);background:var(--surface-2)}
+  .modal .close-btn svg{width:14px;height:14px}
+  .modal .preset-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:10px;margin-bottom:18px;
+  }
+  .preset-card{
+    padding:14px 16px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:all .15s;
+    background:var(--surface);
+    position:relative;
+  }
+  .preset-card:hover{border-color:var(--ink-2);background:var(--surface-2)}
+  .preset-card.active{
+    border-color:var(--ink);
+    background:var(--ink);color:var(--bg);
+  }
+  .preset-card .name{
+    font-weight:600;font-size:14px;
+    color:var(--ink);
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:4px;
+  }
+  .preset-card.active .name{color:var(--bg)}
+  .preset-card .name .badge{
+    font-size:9.5px;letter-spacing:1px;
+    text-transform:uppercase;
+    background:var(--accent);color:#fff;
+    padding:2px 6px;border-radius:2px;
+    font-weight:600;
+  }
+  .preset-card.active .name .badge{background:var(--accent);color:#fff}
+  .preset-card .desc{
+    color:var(--ink-3);font-size:12px;
+    margin-top:2px;line-height:1.4;
+    font-family:var(--mono);letter-spacing:.2px;
+  }
+  .preset-card.active .desc{color:var(--ink-4)}
+  .modal .api-key-wrap{position:relative}
+  .modal .api-key-wrap input{padding-right:80px;font-family:var(--mono);font-size:13px}
+  .modal .api-key-wrap .toggle-vis{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;
+    color:var(--ink-3);
+    cursor:pointer;font-size:11px;letter-spacing:1px;text-transform:uppercase;
+    padding:5px 9px;border-radius:var(--radius);
+    font-weight:600;
+    font-family:var(--sans);
+  }
+  .modal .api-key-wrap .toggle-vis:hover{color:var(--ink);background:var(--surface-2)}
   .modal .test-result{
-    margin-top:10px;padding:10px 12px;
-    border-radius:10px;font-size:12.5px;display:none;
-    border:1px solid transparent;
+    margin-top:12px;padding:10px 14px;
+    border-radius:var(--radius);
+    font-size:12.5px;display:none;
+    border:1px solid var(--line);
+    font-family:var(--sans);
   }
-  .modal .test-result.show{display:block;animation:fadeIn .25s ease}
-  .modal .test-result.ok{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
-  .modal .test-result.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
-  .help-link{color:var(--primary);text-decoration:none;font-size:12px;font-weight:500}
-  .help-link:hover{text-decoration:underline}
-  .modal .divider{border:none;border-top:1.5px dashed var(--line);margin:18px 0}
+  .modal .test-result.show{display:block;animation:fadeIn .2s ease}
+  .modal .test-result.ok{background:var(--surface-2);color:var(--positive);border-left:2px solid var(--positive)}
+  .modal .test-result.err{background:#fef2f2;color:var(--danger);border-left:2px solid var(--danger)}
+  .help-link{color:var(--ink-2);text-decoration:none;font-size:11.5px;border-bottom:1px solid var(--ink-4);padding-bottom:1px}
+  .help-link:hover{color:var(--ink);border-bottom-color:var(--ink)}
+  .modal .divider{border:none;border-top:1px dashed var(--line);margin:20px 0}
   .modal .warning{
-    padding:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);
-    border:1px solid #fde68a;border-left:3px solid #f59e0b;
-    border-radius:8px;font-size:12px;color:#92400e;
-    margin-bottom:14px;line-height:1.6;
+    padding:10px 14px;
+    background:var(--surface-2);
+    border-left:2px solid var(--warn);
+    border-radius:0 var(--radius) var(--radius) 0;
+    font-size:12.5px;color:var(--ink-2);
+    margin-bottom:18px;line-height:1.6;
+    font-family:var(--sans);
   }
-  .modal .warning strong{color:#78350f}
+  .modal .warning strong{color:var(--ink)}
+
+  /* ============ Spinner & Animations ============ */
+  .spinner{
+    display:inline-block;width:12px;height:12px;
+    border:1.5px solid rgba(255,255,255,.3);
+    border-top-color:currentColor;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+  .typing-cursor{
+    display:inline-block;width:1px;height:14px;background:var(--ink);
+    margin-left:2px;animation:blink 1s infinite;vertical-align:text-bottom;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* ============ Responsive ============ */
   @media(max-width:980px){
-    .main{grid-template-columns:1fr}
-    .modal{padding:22px}
+    .container{padding:32px 20px 60px}
+    .main{grid-template-columns:1fr;gap:32px}
+    .header{grid-template-columns:1fr;gap:16px}
+    .ai-status{justify-self:start}
+    .brand-text .name{font-size:24px}
+    .modal{padding:24px 20px}
     .preset-grid{grid-template-columns:1fr}
-    .header .brand{font-size:28px}
-    .ai-status{position:static;margin:14px auto 0;display:inline-flex}
+    .resume-preview{padding:32px 28px}
   }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div class="brand"><span class="logo">🤖</span><span>AI 简历生成平台</span></div>
-    <p>输入 JD + 模糊经历 · 真实 AI 生成多版本简历 · 一键导出 PDF</p>
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">
+        <!-- 自定义品牌符号：折页 + 笔触 -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter">
+          <path d="M5 3h9l5 5v13H5z"/>
+          <path d="M14 3v5h5"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="16" x2="16" y2="16"/>
+          <line x1="8" y1="19" x2="13" y2="19"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">Resume<em>·</em>Atelier</div>
+        <div class="sub">JD × 经历 · 多版本简历工坊</div>
+      </div>
+    </div>
     <div class="ai-status off" id="aiStatus" onclick="openAIModal()" title="点击配置 AI">
       <span class="dot"></span>
-      <span id="aiStatusText">本地模式（未配置 AI）</span>
+      <span id="aiStatusText">本地启发式</span>
+      <span class="label-meta" id="aiStatusMeta">no key</span>
     </div>
   </div>
 
   <div class="main">
     <!-- 左侧：输入区 -->
     <div class="panel">
-      <div class="panel-title"><span class="icon">①</span>输入信息</div>
+      <div class="panel-header">
+        <span class="step">— Step 01</span>
+        <span class="title">输入信息</span>
+        <span class="meta">inputs</span>
+      </div>
 
       <div class="form-group">
-        <label>目标岗位 / 职位方向（可填多个，用逗号分隔）</label>
+        <label>
+          <span>目标岗位</span>
+          <span class="opt">可填多个，逗号分隔</span>
+        </label>
         <input type="text" id="positions" placeholder="如：产品经理, 数据分析师, 运营经理">
-        <div class="hint">多个岗位将自动生成对应版本的简历</div>
         <div class="tags-row">
           <span class="tag" onclick="addPos('产品经理')">产品经理</span>
           <span class="tag" onclick="addPos('数据分析')">数据分析</span>
@@ -425,21 +696,20 @@
       </div>
 
       <div class="form-group">
-        <label>目标岗位 JD（可粘贴多段）</label>
+        <label>目标岗位 JD</label>
         <textarea id="jd" placeholder="粘贴目标岗位的 JD 描述，多段用空行分隔&#10;&#10;例如：&#10;产品经理 JD：&#10;1. 负责XX产品规划&#10;2. 数据驱动决策&#10;3. 跨部门协作"></textarea>
-        <div class="hint">系统会自动提取关键技能点和岗位要求</div>
       </div>
 
       <div class="form-group">
-        <label>个人经历（模糊描述即可）</label>
-        <textarea id="experience" placeholder="随便写，越真实越好：&#10;&#10;2020-2023 某某公司 担任XX&#10;- 做过一些数据相关的事&#10;- 带过几个人&#10;- 搞过一些活动&#10;&#10;2023-至今 自由职业&#10;- 折腾过短视频&#10;- 写过一些文章" style="min-height:140px"></textarea>
+        <label>个人经历</label>
+        <textarea id="experience" placeholder="随便写，越真实越好：&#10;&#10;2020–2023 某某公司 担任XX&#10;— 做过一些数据相关的事&#10;— 带过几个人&#10;— 搞过一些活动&#10;&#10;2023–至今 自由职业&#10;— 折腾过短视频&#10;— 写过一些文章" style="min-height:140px"></textarea>
         <div class="hint">写得越具体，AI 生成的简历越精准</div>
       </div>
 
       <div class="form-group">
         <label>个人信息</label>
         <input type="text" id="name" placeholder="姓名（如：张三）" style="margin-bottom:8px">
-        <input type="text" id="contact" placeholder="联系方式（电话/邮箱，可选）">
+        <input type="text" id="contact" placeholder="联系方式（电话 / 邮箱，可选）">
       </div>
 
       <div class="form-group">
@@ -453,11 +723,15 @@
 
       <div class="actions">
         <button class="btn btn-primary" id="generateBtn" onclick="generate()">
-          ✨ 生成多版本简历
+          <span>生成多版本简历</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </button>
-        <button class="btn btn-secondary" onclick="fillDemo()">📝 填入示例</button>
-        <button class="btn btn-ghost" onclick="openAIModal()">⚙️ AI 配置</button>
-        <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空</button>
+        <button class="btn btn-secondary" onclick="fillDemo()">填入示例</button>
+        <button class="btn btn-ghost" onclick="openAIModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          <span>AI 配置</span>
+        </button>
+        <button class="btn btn-ghost" onclick="clearAll()">清空</button>
       </div>
 
       <div class="status-bar" id="statusBar"></div>
@@ -465,30 +739,50 @@
 
     <!-- 右侧：预览区 -->
     <div class="panel">
-      <div class="panel-title">
-        <span class="icon">②</span>简历预览
-        <span style="margin-left:auto;font-size:12px;color:#888;font-weight:normal" id="tabInfo"></span>
+      <div class="panel-header">
+        <span class="step">— Step 02</span>
+        <span class="title">简历预览</span>
+        <span class="meta" id="tabInfo">preview</span>
       </div>
 
       <div class="right-tabs" id="tabsContainer">
-        <span style="color:#94a3b8;padding:9px 14px;font-size:12.5px;background:rgba(241,245,249,.5);border-radius:8px">💡 填写左侧信息后点击「生成」，这里会出现多个岗位的简历版本</span>
+        <span style="color:var(--ink-3);padding:12px 18px;font-size:12.5px;font-style:italic;font-family:var(--serif)">填写左侧信息后点击「生成」 · 多个岗位的简历将出现在此</span>
       </div>
 
-      <div class="resume-preview" id="resumePreview">
-        <div class="empty-state">
-          <div class="big" style="animation:float 3s ease-in-out infinite">📄</div>
-          <div style="font-size:15px;color:#64748b;font-weight:500">填写左侧信息后点击生成</div>
-          <div class="hint-line">AI 将为你定制多个岗位方向的简历 ✨</div>
+      <div class="preview-wrap" id="previewWrap">
+        <div class="preview-toolbar">
+          <span class="dot-row"><span></span><span></span><span></span></span>
+          <span id="previewMeta">document</span>
+        </div>
+        <div class="resume-preview" id="resumePreview">
+          <div class="empty-state">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square">
+              <rect x="14" y="8" width="32" height="44"/>
+              <line x1="20" y1="18" x2="40" y2="18"/>
+              <line x1="20" y1="24" x2="40" y2="24"/>
+              <line x1="20" y1="30" x2="40" y2="30"/>
+              <line x1="20" y1="36" x2="34" y2="36"/>
+              <line x1="20" y1="42" x2="30" y2="42"/>
+              <path d="M42 44l8 8M50 44l-8 8" stroke-dasharray="2 2"/>
+            </svg>
+            <div class="es-title">— 简历将在此呈现 —</div>
+            <div class="es-sub">填写左侧信息后点击 <kbd>生成</kbd> 即可定制</div>
+          </div>
         </div>
       </div>
 
       <div class="match-info" id="matchInfo"></div>
 
       <div class="actions" id="exportActions" style="display:none">
-        <button class="btn btn-success" onclick="exportPDF()">📥 导出当前 PDF</button>
-        <button class="btn btn-primary" onclick="exportAllPDF()">📦 导出全部 PDF</button>
-        <button class="btn btn-secondary" onclick="copyText()">📋 复制文本</button>
-        <button class="btn btn-secondary" onclick="downloadHTML()">💾 下载 HTML</button>
+        <button class="btn btn-primary" onclick="exportPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>导出当前 PDF</span>
+        </button>
+        <button class="btn btn-accent" onclick="exportAllPDF()">
+          <span>导出全部 PDF</span>
+        </button>
+        <button class="btn btn-secondary" onclick="copyText()">复制文本</button>
+        <button class="btn btn-secondary" onclick="downloadHTML()">下载 HTML</button>
       </div>
     </div>
   </div>
@@ -499,30 +793,34 @@
 <!-- AI 配置弹窗 -->
 <div class="modal-overlay" id="aiModal" onclick="if(event.target===this)closeAIModal()">
   <div class="modal" style="position:relative">
-    <button class="close-btn" onclick="closeAIModal()">✕</button>
-    <h2>⚙️ AI 模型配置</h2>
-    <div class="sub-title">支持 OpenAI 兼容协议（OpenAI / DeepSeek / Moonshot / 通义千问 / 智谱 / Ollama 等）</div>
-
-    <div class="warning">
-      <strong>🔒 隐私说明</strong>：API Key 仅保存在你的浏览器 localStorage，<strong>不会上传到任何服务器</strong>，请求直接从你的浏览器发往 AI 服务商。
+    <button class="close-btn" onclick="closeAIModal()" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2>AI 模型配置</h2>
+      <div class="sub-title">支持 OpenAI 兼容协议 · OpenAI / DeepSeek / Moonshot / 通义千问 / 智谱 / Ollama</div>
     </div>
 
-    <label style="margin-bottom:8px">快速选择服务商</label>
+    <div class="warning">
+      <strong>隐私说明</strong> · API Key 仅保存在你浏览器的 localStorage，<strong>不会上传到任何服务器</strong>，请求直接从你的浏览器发往 AI 服务商。
+    </div>
+
+    <label style="margin-bottom:10px">快速选择服务商</label>
     <div class="preset-grid" id="presetGrid">
       <div class="preset-card" data-preset="openai" onclick="applyPreset('openai')">
         <div class="name">OpenAI <span class="badge">官方</span></div>
-        <div class="desc">GPT-4o / GPT-4o-mini / o1</div>
+        <div class="desc">gpt-4o / gpt-4o-mini / o1</div>
       </div>
       <div class="preset-card" data-preset="deepseek" onclick="applyPreset('deepseek')">
-        <div class="name">DeepSeek <span class="badge">便宜</span></div>
+        <div class="name">DeepSeek <span class="badge">推荐</span></div>
         <div class="desc">deepseek-chat · 国内直连</div>
       </div>
       <div class="preset-card" data-preset="moonshot" onclick="applyPreset('moonshot')">
-        <div class="name">Moonshot (Kimi)</div>
+        <div class="name">Moonshot</div>
         <div class="desc">moonshot-v1-128k · 长文本</div>
       </div>
       <div class="preset-card" data-preset="dashscope" onclick="applyPreset('dashscope')">
-        <div class="name">通义千问 (DashScope)</div>
+        <div class="name">通义千问</div>
         <div class="desc">qwen-plus / qwen-turbo</div>
       </div>
       <div class="preset-card" data-preset="zhipu" onclick="applyPreset('zhipu')">
@@ -530,7 +828,7 @@
         <div class="desc">glm-4 / glm-4-flash</div>
       </div>
       <div class="preset-card" data-preset="ollama" onclick="applyPreset('ollama')">
-        <div class="name">Ollama (本地)</div>
+        <div class="name">Ollama</div>
         <div class="desc">llama3 / qwen 本地部署</div>
       </div>
     </div>
@@ -538,7 +836,7 @@
     <hr class="divider">
 
     <div class="form-group">
-      <label>Base URL <span class="hint" style="display:inline">(API 根地址)</span></label>
+      <label>Base URL <span class="hint" style="display:inline">API 根地址</span></label>
       <input type="text" id="cfgBaseUrl" placeholder="https://api.openai.com/v1">
     </div>
 
@@ -546,10 +844,10 @@
       <label>API Key</label>
       <div class="api-key-wrap">
         <input type="password" id="cfgApiKey" placeholder="sk-...">
-        <button type="button" class="toggle-vis" onclick="toggleKeyVis()">👁️ 显示</button>
+        <button type="button" class="toggle-vis" onclick="toggleKeyVis()">显示</button>
       </div>
       <div class="hint">
-        <a class="help-link" href="https://platform.openai.com/api-keys" target="_blank">OpenAI Key</a> ·
+        <a class="help-link" href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a> ·
         <a class="help-link" href="https://platform.deepseek.com/" target="_blank">DeepSeek</a> ·
         <a class="help-link" href="https://platform.moonshot.cn/console/api-keys" target="_blank">Moonshot</a> ·
         <a class="help-link" href="https://dashscope.console.aliyun.com/" target="_blank">DashScope</a>
@@ -562,22 +860,22 @@
         <input type="text" id="cfgModel" placeholder="gpt-4o-mini">
       </div>
       <div class="form-group" style="margin-bottom:0">
-        <label>Temperature <span class="hint" style="display:inline">(0-2)</span></label>
+        <label>Temperature <span class="hint" style="display:inline">0–2</span></label>
         <input type="number" id="cfgTemperature" min="0" max="2" step="0.1" value="0.7">
       </div>
     </div>
 
     <div class="form-group">
-      <label>超时时间 (秒)</label>
+      <label>超时时间 <span class="hint" style="display:inline">秒</span></label>
       <input type="number" id="cfgTimeout" min="10" max="300" step="10" value="60">
     </div>
 
     <div class="test-result" id="testResult"></div>
 
-    <div class="actions" style="margin-top:16px">
-      <button class="btn btn-primary" onclick="testConnection()">🔌 测试连接</button>
-      <button class="btn btn-success" onclick="saveAIConfig()">💾 保存配置</button>
-      <button class="btn btn-secondary" onclick="clearAIConfig()">🗑️ 清除配置</button>
+    <div class="actions" style="margin-top:18px">
+      <button class="btn btn-primary" onclick="testConnection()">测试连接</button>
+      <button class="btn btn-accent" onclick="saveAIConfig()">保存配置</button>
+      <button class="btn btn-secondary" onclick="clearAIConfig()">清除配置</button>
     </div>
   </div>
 </div>
@@ -593,8 +891,8 @@ let AI_CONFIG = null;  // {baseUrl, apiKey, model, temperature, timeout}
 function $(id){return document.getElementById(id)}
 function showToast(msg, type='success'){
   const t = $('toast');
-  const icon = type==='error' ? '⚠️' : type==='info' ? 'ℹ️' : '✓';
-  t.innerHTML = `<span style="font-size:16px">${icon}</span><span>${msg}</span>`;
+  const symbol = type==='error' ? '×' : type==='info' ? 'i' : '✓';
+  t.innerHTML = `<span class="t-icon">${symbol}</span><span>${msg}</span>`;
   t.className = 'toast show' + (type==='error'?' error':type==='info'?' info':'');
   setTimeout(()=>t.className='toast'+(type==='error'?' error':type==='info'?' info':''), 3500);
 }
@@ -740,12 +1038,15 @@ function loadAIConfig(){
 function updateAIStatus(){
   const el = $('aiStatus');
   const text = $('aiStatusText');
+  const meta = $('aiStatusMeta');
   if(AI_CONFIG){
     el.className = 'ai-status on';
-    text.textContent = `AI 已连接 · ${AI_CONFIG.model}`;
+    text.textContent = `AI · ${AI_CONFIG.model}`;
+    meta.textContent = 'connected';
   } else {
     el.className = 'ai-status off';
-    text.textContent = '本地模式（点击配置 AI）';
+    text.textContent = '本地启发式';
+    meta.textContent = 'no key';
   }
 }
 async function testConnection(){
@@ -853,10 +1154,10 @@ ${jd || '（未提供 JD，请基于岗位名称通用化设计）'}
 
 1. **结构完整**，按以下顺序输出（HTML 片段，不要 <html><body> 标签）：
    - <h1>姓名</h1>
-   - <div class="sub-info">联系方式 · 意向岗位：${position}</div>
+   - <div class="sub-info">联系方式 / 意向岗位：${position}</div>
    - <h2>个人简介</h2>：3-4 句话，紧密围绕${position}岗位要求，结合候选人经历
    - <h2>核心亮点</h2>：3-5 条量化亮点（即使原始数据模糊，也要合理化包装，体现能力）
-   - <h2>工作经历</h2>：按时间倒序，每段经历用 <div class="item"> 包裹，包含 <div class="item-head"><span>公司·职位</span><span>时间</span></div> 和 <ul><li>...</li></ul>
+   - <h2>工作经历</h2>：按时间倒序，每段经历用 <div class="item"> 包裹，包含 <div class="item-head"><span>公司·职位</span><span class="period">时间</span></div> 和 <ul><li>...</li></ul>
    - <h2>项目经历</h2>：2-3 个项目，每个项目用 <div class="item"> 包裹，包含项目名称、角色、描述、3-4 个项目要点（用 <ul><li>）</li></ul>
    - <h2>专业技能</h2>：用 <div class="skills"><span class="skill">技能名</span>...</div> 包裹，10-15 个技能标签
    - <h2>自我评价</h2>：3-4 句话，体现与${position}岗位的匹配度
@@ -867,7 +1168,7 @@ ${jd || '（未提供 JD，请基于岗位名称通用化设计）'}
    - 模糊的数据可以合理包装（如"显著提升"、"覆盖规模较大"），但不要编造虚假具体数字
    - 主动融入 JD 中的关键技能词（必备技能优先）
 
-3. **输出格式**：纯 HTML 片段，使用 class 样式（h1/h2/h3、.item、.item-head、.item-sub、ul、.skills、.skill），不要包裹在 <html> 内，不要输出任何额外解释。
+3. **输出格式**：纯 HTML 片段，使用 class 样式（h1/h2/.item/.item-head/.item-sub/.period/ul/.skills/.skill），不要任何内联颜色或背景样式，不要包裹在 <html> 内，不要输出任何额外解释。视觉风格由 CSS 决定。
 
 开始生成：`;
 }
@@ -980,42 +1281,40 @@ function localGenerateResume(position, jdText, experience, personalInfo, style){
   const keywords = extractKeywords(jdText);
   const polished = polishExperience(experience, position, keywords.mustHave.concat(keywords.nice));
   const projects = generateProjectsLocal(position, polished, keywords);
-  const styleMap = {professional:{primary:'#1e40af'}, modern:{primary:'#667eea'}, creative:{primary:'#ec4899'}};
-  const st = styleMap[style] || styleMap.modern;
   const name = personalInfo.name || '候选人';
   const contact = personalInfo.contact || '';
-  
+
   const expHtml = polished.map(p=>{
     const items = p.items.filter(i=>i && !/^个人技能/.test(i)).map(i=>`<li>${i}</li>`).join('') || '<li>（详见下方项目经历）</li>';
-    return `<div class="item"><div class="item-head"><span>${p.role}</span><span style="color:#888;font-weight:normal">${p.time}</span></div><ul>${items}</ul></div>`;
+    return `<div class="item"><div class="item-head"><span>${p.role}</span><span class="period">${p.time}</span></div><ul>${items}</ul></div>`;
   }).join('');
   const projHtml = projects.map(pr=>{
     const pts = pr.points.map(p=>`<li>${p}</li>`).join('');
-    return `<div class="item"><div class="item-head"><span>${pr.name}</span><span style="color:#888;font-weight:normal">${pr.role}</span></div><div class="item-sub">${pr.desc}</div><ul>${pts}</ul></div>`;
+    return `<div class="item"><div class="item-head"><span>${pr.name}</span><span class="period">${pr.role}</span></div><div class="item-sub">${pr.desc}</div><ul>${pts}</ul></div>`;
   }).join('');
   const skills = [...new Set([...keywords.mustHave, ...keywords.nice.slice(0,6), '跨部门协作', '数据分析', '沟通表达', '项目管理'].filter(s=>s))].slice(0,14);
-  const skillsHtml = skills.map(s=>`<span class="skill" style="background:${st.primary}15;color:${st.primary}">${s}</span>`).join('');
-  
+  const skillsHtml = skills.map(s=>`<span class="skill">${s}</span>`).join('');
+
   const html = `
-    <h1 style="color:${st.primary}">${name}</h1>
-    <div class="sub-info" style="border-bottom-color:${st.primary}">${contact ? contact + ' · ' : ''}意向岗位：<strong style="color:${st.primary}">${position}</strong></div>
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">个人简介</h2>
-    <p style="line-height:1.8;color:#444">拥有 ${polished.length} 段相关经历，${position}方向核心能力扎实，擅长将复杂问题拆解落地，跨部门协作与执行力强。</p>
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">核心亮点</h2>
-    <ul style="background:${st.primary}08;padding:14px 20px 14px 30px;border-radius:6px">
-      <li>具备产品/数据/运营复合能力，可独立闭环小型项目</li>
+    <h1>${name}</h1>
+    <div class="sub-info">${contact ? `<span>${contact}</span><span class="sep">/</span>` : ''}<span>意向岗位：<strong>${position}</strong></span></div>
+    <h2>个人简介</h2>
+    <p>拥有 ${polished.length} 段相关经历，${position}方向核心能力扎实，擅长将复杂问题拆解落地，跨部门协作与执行力强。</p>
+    <h2>核心亮点</h2>
+    <ul>
+      <li>具备产品 / 数据 / 运营复合能力，可独立闭环小型项目</li>
       <li>拥有跨部门协作经验，善于在资源约束下推动项目落地</li>
       <li>数据敏感度高，习惯用数据验证假设、指导决策</li>
       <li>执行力强，能够在高压环境下按时交付高质量成果</li>
     </ul>
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">工作经历</h2>
+    <h2>工作经历</h2>
     ${expHtml}
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">项目经历</h2>
+    <h2>项目经历</h2>
     ${projHtml}
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">专业技能</h2>
+    <h2>专业技能</h2>
     <div class="skills">${skillsHtml}</div>
-    <h2 style="color:${st.primary};border-left-color:${st.primary}">自我评价</h2>
-    <p style="line-height:1.8;color:#444">具备扎实的 ${position} 专业知识与丰富的实战经验。性格踏实、责任心强，工作中注重团队协作与目标达成。持续学习行业新知，期待在 ${position} 方向深耕发展。</p>
+    <h2>自我评价</h2>
+    <p>具备扎实的 ${position} 专业知识与丰富的实战经验。性格踏实、责任心强，工作中注重团队协作与目标达成。持续学习行业新知，期待在 ${position} 方向深耕发展。</p>
   `;
   return {html, keywords, summary:'本地生成'};
 }
@@ -1105,14 +1404,16 @@ function cleanAIOutput(text){
 function renderTabs(){
   const c = $('tabsContainer');
   if(resumes.length === 0){
-    c.innerHTML = '<span style="color:#999;padding:8px 14px;font-size:13px">点击"生成"后这里会出现多个岗位的简历版本</span>';
-    $('tabInfo').textContent = '';
+    c.innerHTML = '<span style="color:var(--ink-3);padding:12px 18px;font-size:12.5px;font-style:italic;font-family:var(--serif)">填写左侧信息后点击「生成」 · 多个岗位的简历将出现在此</span>';
+    $('tabInfo').textContent = 'preview';
     return;
   }
-  c.innerHTML = resumes.map((r,i)=>
-    `<div class="tab ${i===currentIdx?'active':''}" onclick="switchTab(${i})">${r.position}${resumes.length>1 ? `<span class="close-x" onclick="event.stopPropagation();removeTab(${i})">✕</span>`:''}</div>`
-  ).join('') + `<div class="add-tab" onclick="addNewVersion()">+</div>`;
-  $('tabInfo').textContent = `共 ${resumes.length} 个版本 · 当前：${resumes[currentIdx].position}`;
+  c.innerHTML = resumes.map((r,i)=>{
+    const num = String(i+1).padStart(2,'0');
+    return `<div class="tab ${i===currentIdx?'active':''}" onclick="switchTab(${i})"><span class="pos-num">${num}</span><span>${r.position}</span>${resumes.length>1 ? `<span class="close-x" onclick="event.stopPropagation();removeTab(${i})">×</span>`:''}</div>`;
+  }).join('') + `<div class="add-tab" onclick="addNewVersion()" title="新增版本">+</div>`;
+  $('tabInfo').textContent = `v${String(currentIdx+1).padStart(2,'0')} / ${String(resumes.length).padStart(2,'0')}`;
+  if($('previewMeta')) $('previewMeta').textContent = `${resumes[currentIdx].position} · v${String(currentIdx+1).padStart(2,'0')}`;
 }
 function switchTab(i){currentIdx=i; renderTabs(); renderPreview(); renderMatchInfo();}
 function removeTab(i){
@@ -1151,7 +1452,19 @@ async function addNewVersion(){
 function renderPreview(){
   const p = $('resumePreview');
   if(resumes.length === 0){
-    p.innerHTML = `<div class="empty-state"><div class="big">📄</div><div>填写左侧信息后点击生成<br>AI 将为你定制多个岗位方向的简历</div></div>`;
+    p.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="square">
+        <rect x="14" y="8" width="32" height="44"/>
+        <line x1="20" y1="18" x2="40" y2="18"/>
+        <line x1="20" y1="24" x2="40" y2="24"/>
+        <line x1="20" y1="30" x2="40" y2="30"/>
+        <line x1="20" y1="36" x2="34" y2="36"/>
+        <line x1="20" y1="42" x2="30" y2="42"/>
+        <path d="M42 44l8 8M50 44l-8 8" stroke-dasharray="2 2"/>
+      </svg>
+      <div class="es-title">— 简历将在此呈现 —</div>
+      <div class="es-sub">填写左侧信息后点击 <kbd>生成</kbd> 即可定制</div>
+    </div>`;
     return;
   }
   p.innerHTML = resumes[currentIdx].html;
@@ -1163,8 +1476,8 @@ function renderMatchInfo(){
   const mustHtml = r.keywords.mustHave.map(k=>`<span class="jd-chip must">${k}</span>`).join('');
   const niceHtml = r.keywords.nice.map(k=>`<span class="jd-chip nice">${k}</span>`).join('');
   info.innerHTML = `
-    <div style="margin-bottom:6px"><strong>📌 提取自 JD 的关键要求（简历已针对性强化）</strong></div>
-    <div class="jd-chips">${mustHtml}${niceHtml || '<span style="color:#888;font-size:12px">未提取到明显关键词</span>'}</div>
+    <div class="mi-title">提取自 JD 的关键要求 · 简历已针对性强化</div>
+    <div class="jd-chips">${mustHtml}${niceHtml || '<span style="color:var(--ink-3);font-size:12px;font-style:italic">未提取到明显关键词</span>'}</div>
   `;
   info.classList.add('show');
 }
@@ -1245,7 +1558,7 @@ $('jd').addEventListener('input', ()=>{
     const mustHtml = kw.mustHave.map(k=>`<span class="jd-chip must">${k}</span>`).join('');
     const niceHtml = kw.nice.map(k=>`<span class="jd-chip nice">${k}</span>`).join('');
     if(mustHtml || niceHtml){
-      info.innerHTML = `<div style="margin-bottom:6px"><strong>👀 JD 关键要求预览（点击生成后会自动融入简历）</strong></div><div class="jd-chips">${mustHtml}${niceHtml}</div>`;
+      info.innerHTML = `<div class="mi-title">JD 关键要求预览 · 点击「生成」后自动融入简历</div><div class="jd-chips">${mustHtml}${niceHtml}</div>`;
       info.classList.add('show');
     }
   }
